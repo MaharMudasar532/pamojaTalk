@@ -65,9 +65,9 @@ function Tables() {
     });
     setRows(arr);
   };
-  useEffect(() => {
+  useEffect(async () => {
+    await onLogin();
     getData();
-    onLogin();
   }, [rows]);
 
   // const rows = [
