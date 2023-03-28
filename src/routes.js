@@ -41,9 +41,9 @@ import Notifications from "layouts/notifications";
 // import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import Locate from "layouts/Map/userLocation";
-
 // @mui icons
 import Icon from "@mui/material/Icon";
+import AddPost from "layouts/AddPost";
 
 const routes = [
   {
@@ -53,6 +53,14 @@ const routes = [
     icon: <Icon fontSize="small">dashboard</Icon>,
     route: "/dashboard",
     component: <Tables />,
+  },
+  {
+    type: "collapse",
+    name: "AddPost",
+    key: "AddPost",
+    icon: <Icon fontSize="small">AddPost</Icon>,
+    route: "/AddPost",
+    component: <AddPost />,
   },
   {
     type: "collapse",

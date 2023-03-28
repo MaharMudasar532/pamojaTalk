@@ -1,19 +1,21 @@
 import { initializeApp } from "firebase/app";
-// import { getFirestore } from "firebase/firestore/lite";
+import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCFMzkb0UeYAyF7B0BXHphdfdjmdVinZAs",
-  authDomain: "safetyapp-5c0f0.firebaseapp.com",
-  databaseURL: "https://safetyapp-5c0f0-default-rtdb.firebaseio.com",
-  projectId: "safetyapp-5c0f0",
-  storageBucket: "safetyapp-5c0f0.appspot.com",
-  messagingSenderId: "1097450382217",
-  appId: "1:1097450382217:web:76bb16bdbbb17aca16b758",
-  measurementId: "G-05VE8KKSNW",
+  apiKey: "AIzaSyAl9EoFqhuRMwZTa7Qx1HLzUw3hU87Lht4",
+  authDomain: "pamoja-aa41b.firebaseapp.com",
+  databaseURL: "https://pamoja-aa41b-default-rtdb.firebaseio.com",
+  projectId: "pamoja-aa41b",
+  storageBucket: "pamoja-aa41b.appspot.com",
+  messagingSenderId: "861923758020",
+  appId: "1:861923758020:web:68438cac3c69c03aea1e91",
+  measurementId: "G-EFCEPEMWTX",
 };
 const app = initializeApp(firebaseConfig);
-// const fStore = getFirestore(app);
+const db = getFirestore(app);
 const auth = getAuth(app);
-export default auth;
+const storage = getStorage(app);
+export { auth, db, storage };
 // export { fStore };

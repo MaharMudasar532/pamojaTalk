@@ -9,7 +9,7 @@ import MDTypography from "components/MDTypography";
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
@@ -18,57 +18,52 @@ import authorsTableData from "layouts/tables/data/authorsTableData";
 // import auth from "firebase/firestore";
 import { useEffect, useState } from "react";
 // import { collection, getDoc } from "firebase/firestore/lite";
-import { getDatabase, ref, onValue } from "firebase/database";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import auth from "../../firebase";
+// import { getDatabase, ref, onValue } from "firebase/database";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
 
 // import projectsTableData from "layouts/tables/data/projectsTableData";
 function Tables() {
   const [rows, setRows] = useState([]);
   const { columns } = authorsTableData();
-  const onLogin = async () => {
-    await signInWithEmailAndPassword(auth, "raj4hha4@gmail.com", "Hello123@")
-      .then((userData) => {
-        // setUser(userData.user);
-        console.log("userData", userData.user);
-      })
-      .catch((er) => {
-        console.log(er.message.toString());
-      });
-  };
 
   const getData = async () => {
-    const db = getDatabase();
-    const starCountRef = ref(db, "users/");
+    const querySnapshot = await getDocs(collection(db, "Users"));
+    querySnapshot.forEach((doc) => {
+      console.log("Users data ", doc);
+    });
     const arr = [];
-    onValue(starCountRef, (snapshot) => {
-      snapshot.forEach((data) => {
-        const item = data.val();
-        console.log("user data >>>", item);
-        arr.push({
-          Name: item.userName,
-          Email: item.userEmail,
-          Image: (
-            <img
-              src={item.userImage}
-              alt="react logo"
-              style={{ width: "50px", height: "50px", borderRadius: "50%" }}
-            />
-          ),
-          Phone: item.userPhone,
-          Gender: item.userGender,
-          status: item.userEmail,
-          employed: item.userImage,
-          action: <Link to={`/locate/${item.key}`}> Track </Link>,
-        });
+    querySnapshot.forEach((doc) => {
+      const item = doc.data();
+      console.log("user data >>>", item);
+      arr.push({
+        Name: item.name,
+        Email: item.email,
+        Image: (
+          <img
+            src={item.userImage}
+            alt="react logo"
+            style={{ width: "50px", height: "50px", borderRadius: "50%" }}
+          />
+        ),
+        Phone: item.phoneNumber,
+        Gender: item.gender,
+        status: item.userEmail,
+        employed: item.userImage,
+        action: <Link to={`/locate/${item.key}`}> Track </Link>,
       });
     });
     setRows(arr);
   };
-  useEffect(async () => {
-    await onLogin();
+  const naivgate = useNavigate();
+  let user = localStorage.getItem("user");
+  console.log("storage user >>>>>>>", user);
+  if (!user) {
+    naivgate("/authentication/sign-in");
+  }
+  useEffect(() => {
     getData();
-  }, [rows]);
+  }, []);
 
   // const rows = [
   //   {
