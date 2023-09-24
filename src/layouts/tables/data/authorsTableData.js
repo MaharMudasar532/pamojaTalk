@@ -50,11 +50,13 @@ export default function data() {
 
   return {
     columns: [
-      { Header: "Name", accessor: "Name", width: "45%", align: "left" },
-      { Header: "Image", accessor: "Image", width: "45%", align: "left" },
-      { Header: "Email", accessor: "Email", align: "left" },
+      { Header: "Sr", accessor: "Sr", width: "5%", align: "left" },
+      { Header: "Name", accessor: "Name", width: "10%", align: "left" },
+      { Header: "Image", accessor: "Image", width: "10%", align: "left" },
+      // { Header: "Email", accessor: "Email", align: "left" },
       { Header: "Phone", accessor: "Phone", align: "center" },
       { Header: "Gender", accessor: "Gender", align: "center" },
+      { Header: "manage user", accessor: "Suspend", align: "center" },
       { Header: "action", accessor: "action", align: "center" },
     ],
 

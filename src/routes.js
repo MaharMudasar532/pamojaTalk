@@ -1,18 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.1.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2022 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 /** 
   All of the routes for the Material Dashboard 2 React are added here,
   You can add a new route, customize the routes and delete the routes here.
@@ -44,34 +29,167 @@ import Locate from "layouts/Map/userLocation";
 // @mui icons
 import Icon from "@mui/material/Icon";
 import AddPost from "layouts/AddPost";
+import ProviderManagment from "layouts/Provider";
+import PoliceAlerts from "layouts/Police alerts";
+import UserProfile from "layouts/userProfile";
+import Home from "layouts/Home";
+import Setting from "layouts/Setting";
+import ModeOfTransport from "layouts/ModeOfTrans";
+import WellbeingManagment from "layouts/Wellbeing_Managment";
+import Subcription from "layouts/Subscription";
+import RegisteredVehicle from "layouts/RegisteredVehicle";
+import Agents from "layouts/Agents";
+import BrodCast from "layouts/Broadcast";
+import Reports from "layouts/Reports";
+import WhistleBlower from "layouts/WhistleBlower";
+import WellBeingSingleUser from "layouts/WellBeingSingleUser";
+import WhistleBlowSingleUser from "layouts/WhistleBlowSingleUser";
+import VirtualHomeCheck from "layouts/VirtualHomeCheck";
 
-const routes = [
+
+var routes = [
   {
     type: "collapse",
-    name: "Dashboard",
-    key: "dashboard",
+    name: "User Managment",
+    key: "dashboard1",
     icon: <Icon fontSize="small">dashboard</Icon>,
-    route: "/dashboard",
+    route: "/dashboard/",
     component: <Tables />,
   },
   {
     type: "collapse",
-    name: "AddPost",
-    key: "AddPost",
-    icon: <Icon fontSize="small">AddPost</Icon>,
-    route: "/AddPost",
-    component: <AddPost />,
+    name: "Provider Managment",
+    key: "dashboard",
+    icon: <Icon fontSize="small">worker</Icon>,
+    route: "/provider",
+    component: <ProviderManagment />,
   },
   {
     type: "collapse",
-    name: "Notifications",
+    name: "Virtual Travel Guard",
+    key: "Reports",
+    icon: <Icon fontSize="small">security</Icon>,
+    route: "/WellbeingManagment/",
+    component: <WellbeingManagment />,
+  },
+  {
+    type: "collapse",
+    name: "Virtual Home Check",
+    key: "Reports",
+    icon: <Icon fontSize="small">security</Icon>,
+    route: "/VirtualHomeCheck/",
+    component: <VirtualHomeCheck />,
+  },
+  {
+    type: "collapse",
+    name: "WhistleBlower",
+    key: "WhistleBlower",
+    icon: <Icon fontSize="small">security</Icon>,
+    route: "/WhistleBlower/",
+    component: <WhistleBlower />,
+  },
+  {
+    type: "collapse",
+    name: "Sos",
     key: "notifications",
     icon: <Icon fontSize="small">notifications</Icon>,
     route: "/notifications",
     component: <Notifications />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "Police Alerts",
+  //   key: "dashboard2",
+  //   icon: <Icon fontSize="small">notifications</Icon>,
+  //   route: "/policeAlerts",
+  //   component: <PoliceAlerts />,
+  // },
   {
     type: "collapse",
+    name: "vehicle",
+    key: "SUBSCRIPTION",
+    icon: <Icon fontSize="small">VriveEta</Icon>,
+    route: "/vehicle/",
+    component: <RegisteredVehicle />,
+  },
+  // {
+  //   type: "collapse",
+  //   name: "MODE OF TRANSPORT",
+  //   key: "notifications",
+  //   icon: <Icon fontSize="small">MirectionsTransitOutlined</Icon>,
+  //   route: "/tranport",
+  //   component: <ModeOfTransport />,
+  // },
+  {
+    type: "collapse",
+    name: "Agents",
+    key: "Agents",
+    icon: <Icon fontSize="small">people</Icon>,
+    route: "/Agents/",
+    component: <ProviderManagment />,
+  },
+  // {
+  //   type: "collapse",
+  //   name: "SUBSCRIPTION",
+  //   key: "SUBSCRIPTION",
+  //   icon: <Icon fontSize="small">subscription</Icon>,
+  //   route: "/subscription/",
+  //   component: <Subcription />,
+  // },
+  // {
+  //   type: "collapse",
+  //   name: "Home",
+  //   key: "home",
+  //   icon: <Icon fontSize="small">home</Icon>,
+  //   route: "/Home/",
+  //   component: <Home />,
+  // },
+
+  // {
+  //   type: "collapse",
+  //   name: "Broadcast",
+  //   key: "BrodCast",
+  //   icon: <Icon fontSize="small">message</Icon>,
+  //   route: "/Broadcast/",
+  //   component: <BrodCast />,
+  // },
+  {
+    type: "collapse",
+    name: "Reports",
+    key: "Reports",
+    icon: <Icon fontSize="small">report</Icon>,
+    route: "/report/",
+    component: <Reports />,
+  },
+
+  {
+    type: "",
+    name: "UserProfile",
+    key: "UserProfile",
+    icon: <Icon fontSize="small">UserProfile</Icon>,
+    route: "/UserProfile/:id",
+    component: <UserProfile />,
+  },
+  {
+    type: "",
+    name: "WellBeingSingleUser",
+    key: "WellBeingSingleUser",
+    icon: <Icon fontSize="small">wellBeing </Icon>,
+    route: "/WellBeingSingleUser/:userId/:wellBeingCheckId",
+    component: <WellBeingSingleUser    />,
+  },
+  {
+    type: "",
+    name: "WhistleBlowSingleUser",
+    key: "WhistleBlowSingleUser",
+    icon: <Icon fontSize="small">WhistleBlowSingleUser </Icon>,
+    route: "/WhistleBlowSingleUser/:userId/:whistleBlowId",
+    component: <WhistleBlowSingleUser    />,
+  },
+
+
+  {
+    type: "",
     name: "Sign In",
     key: "sign-in",
     icon: <Icon fontSize="small">login</Icon>,
@@ -79,7 +197,15 @@ const routes = [
     component: <SignIn />,
   },
   {
-    type: "title",
+    type: "transparent",
+    name: "Setting",
+    key: "setting",
+    icon: <Icon fontSize="small">setting</Icon>,
+    route: "/setting/",
+    component: <Setting />,
+  },
+  {
+    type: "",
     name: "Track",
     key: "track-user",
     icon: <Icon fontSize="small">Track</Icon>,
@@ -87,5 +213,6 @@ const routes = [
     component: <Locate />,
   },
 ];
+
 
 export default routes;

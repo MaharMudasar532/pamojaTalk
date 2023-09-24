@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 // react-router-dom components
 import { useLocation, NavLink } from "react-router-dom";
@@ -21,6 +21,8 @@ import SidenavCollapse from "examples/Sidenav/SidenavCollapse";
 
 // Custom styles for the Sidenav
 import SidenavRoot from "examples/Sidenav/SidenavRoot";
+
+import { useNavigate } from "react-router-dom";
 import sidenavLogoLabel from "examples/Sidenav/styles/sidenav";
 
 // Material Dashboard 2 React context
@@ -29,13 +31,15 @@ import {
   setMiniSidenav,
   setTransparentSidenav,
   setWhiteSidenav,
+  setLoggedIn,
 } from "context";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
-  const { miniSidenav, transparentSidenav, whiteSidenav, darkMode } = controller;
+  const { miniSidenav, transparentSidenav, whiteSidenav, darkMode , } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
+  const navigate = useNavigate();
 
   let textColor = "white";
 
@@ -46,6 +50,12 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   }
 
   const closeSidenav = () => setMiniSidenav(dispatch, true);
+
+  const handleLogout = useCallback( async () => {
+    await localStorage.removeItem("user");
+    setLoggedIn(dispatch,false)
+    navigate("authentication/sign-in");
+  },[])
 
   useEffect(() => {
     // A function that sets the mini state of the sidenav.
@@ -163,6 +173,9 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         }
       />
       <List>{renderRoutes}</List>
+      <button className="btn btn-danger btn-sm w-50 ms-auto me-auto" onClick={() => handleLogout()}>
+        logout
+      </button>
     </SidenavRoot>
   );
 }

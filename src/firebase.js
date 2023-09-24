@@ -2,20 +2,23 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAl9EoFqhuRMwZTa7Qx1HLzUw3hU87Lht4",
-  authDomain: "pamoja-aa41b.firebaseapp.com",
-  databaseURL: "https://pamoja-aa41b-default-rtdb.firebaseio.com",
-  projectId: "pamoja-aa41b",
-  storageBucket: "pamoja-aa41b.appspot.com",
-  messagingSenderId: "861923758020",
-  appId: "1:861923758020:web:68438cac3c69c03aea1e91",
-  measurementId: "G-EFCEPEMWTX",
+  apiKey: "AIzaSyAdwT1n0vIFG8W2GCIWSsTK5LpwcCfLtgo",
+  authDomain: "karzame-f00a9.firebaseapp.com",
+  databaseURL: "https://karzame-f00a9-default-rtdb.firebaseio.com",
+  projectId: "karzame-f00a9",
+  storageBucket: "karzame-f00a9.appspot.com",
+  messagingSenderId: "551367851869",
+  appId: "1:551367851869:web:673e54bbb35e8aee3032b4",
+  measurementId: "G-TBEJTGK2YJ"
 };
+
 const app = initializeApp(firebaseConfig);
+const dataBase = getDatabase(app);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
-export { auth, db, storage };
+export { auth, db, storage , dataBase };
 // export { fStore };

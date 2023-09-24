@@ -38,6 +38,15 @@ import MDPagination from "components/MDPagination";
 // Material Dashboard 2 React example components
 import DataTableHeadCell from "examples/Tables/DataTable/DataTableHeadCell";
 import DataTableBodyCell from "examples/Tables/DataTable/DataTableBodyCell";
+import { Link, useNavigate } from "react-router-dom";
+
+
+import {
+  useMaterialUIController,
+  setMiniSidenav,
+  setTransparentSidenav,
+  setWhiteSidenav,
+} from "context";
 
 function DataTable({
   entriesPerPage,
@@ -61,6 +70,13 @@ function DataTable({
     useSortBy,
     usePagination
   );
+
+  const navigate = useNavigate();
+  const [controller, dispatch] = useMaterialUIController();
+  const { loggedIn } = controller;
+
+
+
 
   const {
     getTableProps,
