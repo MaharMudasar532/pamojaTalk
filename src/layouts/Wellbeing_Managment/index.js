@@ -69,11 +69,14 @@ function ProviderManagment() {
     // { Header: "Type", accessor: "Type", align: "left" },
     { Header: "Sender", accessor: "userName", align: "left" },
     { Header: "Image", accessor: "userImage", align: "left" },
+    { Header: "Origin ", accessor: "origin", align: "left" },
+    { Header: "destination ", accessor: "dest", align: "left" },
+
     { Header: "Arrival Date", accessor: "Date", align: "left" },
     { Header: "Vehicle Number", accessor: "No", align: "left" },
     { Header: "Partner", accessor: "partner", align: "left" },
     { Header: "Arrival Time", accessor: "time", align: "center" },
-    { Header: "Location", accessor: "Location", align: "center" },
+    { Header: "map", accessor: "Location", align: "center" },
   ];
 
   // useEffect(()=>{
@@ -205,13 +208,15 @@ function ProviderManagment() {
                       <button className={` btn btn-sm`}>{wellBeingServiceItem.data.Type}</button>
                     ),
                     Date: wellBeingServiceItem.data.ArrivalDate,
+                    origin:wellBeingServiceItem.data.currentLocTxt,
+                    dest:wellBeingServiceItem.data.destLocTxt,
                     time: wellBeingServiceItem.data.ArrivalTime,
                     userName: wellBeingServiceItem.data.Name,
                     No: wellBeingServiceItem.data.VehicleNumber,
                     partner: wellBeingServiceItem.data.PartenerType,
                     userImage: (
                       <img
-                        onClick={() => handleImageClick(userImage)}
+                        onClick={() => handleImageClick(wellBeingServiceItem.data.WellBeingTripPic)}
                         src={wellBeingServiceItem.data.WellBeingTripPic}
                         alt=" No image added"
                         style={{ width: '50px', height: '50px', borderRadius: '50%' }}

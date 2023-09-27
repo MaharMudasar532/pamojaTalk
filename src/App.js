@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 
 // react-router components
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
@@ -13,7 +13,6 @@ import { getDatabase, ref, onValue, set, get, onChildAdded, child, update, onChi
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase"
 import { showStyledToast } from "components/toastAlert";
-
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 
@@ -43,6 +42,8 @@ import SignIn from "layouts/authentication/sign-in";
 
 import signInOnlyRoutes from "SignInroutes";
 
+
+
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 
@@ -51,9 +52,47 @@ import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
 import { listenForNewSosWithNotification } from "components/services/AllNotificationListener";
 import { listenToNewWellBeingData } from "components/services/AllNotificationListener";
+import CustomNoti from "components/CustomNoti";
+import VirtualTravelGuard from "components/VirtualTravelGuard";
+
+
+
+
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
   const navigate = useNavigate();
+
+  const [modals, setModals] = useState([]);
+
+  const [virtual, setVirtual] = useState([]);
+
+
+  const openVirtualModal = useCallback((notification) => {
+    setVirtual([...virtual, notification]);
+  }, [virtual])
+
+
+  const closeVirtualModal = useCallback((index) => {
+    const updatedModals = [...virtual];
+    updatedModals.splice(index, 1);
+    setVirtual(updatedModals);
+  }, [virtual])
+
+
+  const openModal = useCallback((notification) => {
+    setModals([...modals, notification]);
+  }, [modals])
+
+
+  // Function to close a modal
+  const closeModal = useCallback((index) => {
+    const updatedModals = [...modals];
+    updatedModals.splice(index, 1);
+    setModals(updatedModals);
+  }, [modals])
+
+
+
 
 
   const {
@@ -115,7 +154,7 @@ export default function App() {
           // Listen for new child nodes added to 'SOS' for this user
           onChildAdded(sosDataRef, (dataSnapshot) => {
             const newData = dataSnapshot.val();
-            console.log("New SOS Alert Data:", newData);
+            // console.log("New SOS Alert Data:", newData);
 
             // Check if 'isRead' doesn't exist or is set to false
             if (!newData.isRead) {
@@ -138,7 +177,7 @@ export default function App() {
               update(ref(db), updates);
             } else {
               // Data has already been read
-              console.log(`SOS Alert Data already read for User ${userId}:`, newData);
+              // console.log(`SOS Alert Data already read for User ${userId}:`, newData);
             }
 
             // You can take further action here with the new SOS alert data
@@ -149,6 +188,18 @@ export default function App() {
       console.error('Error listening to new SOS alerts:', error);
     }
   }
+
+  useEffect(() => {
+
+
+    // showStyledToast(
+    //   "info",
+    //   "SOS Alert",
+    //   `SOS Alert from test `,
+    //   () => {
+    //   }
+    // );
+  }, [])
 
   function listenToNewPoliceAlerts() {
     try {
@@ -167,12 +218,12 @@ export default function App() {
           // Listen for new child nodes added to 'Police_Alerts' for this user
           onChildAdded(policeAlertsDataRef, (dataSnapshot) => {
             const newData = dataSnapshot.val();
-            console.log("New Police Alert Data:", newData);
+            // console.log("New Police Alert Data:", newData);
 
             // Check if 'isRead' doesn't exist or is set to false
             if (!newData.isRead) {
               // Show a toast indicating that the data hasn't been read
-              console.log(`New Police Alert Data for User ${userId}:`, newData);
+              // console.log(`New Police Alert Data for User ${userId}:`, newData);
               const policeAlertId = dataSnapshot.key;
               showStyledToast(
                 "info",
@@ -190,7 +241,7 @@ export default function App() {
               update(ref(db), updates);
             } else {
               // Data has already been read
-              console.log(`Police Alert Data already read for User ${userId}:`, newData);
+              // console.log(`Police Alert Data already read for User ${userId}:`, newData);
             }
 
             // You can take further action here with the new Police alert data
@@ -202,6 +253,8 @@ export default function App() {
     }
   }
 
+
+
   function listenToNewVirtualHomeCheckData() {
     try {
       const db = getDatabase();
@@ -211,7 +264,7 @@ export default function App() {
       onChildAdded(usersRef, (userSnapshot) => {
         const user = userSnapshot.val();
         const userId = userSnapshot.key;
-
+        // console.log("user at vietual", user)
         // Check if the user has 'VirtualHomeCheck' data
         if (user.VirtualHomeCheck) {
           const virtualHomeCheckDataRef = ref(db, `users/${userId}/VirtualHomeCheck`);
@@ -219,30 +272,37 @@ export default function App() {
           // Listen for new child nodes added to 'VirtualHomeCheck' for this user
           onChildAdded(virtualHomeCheckDataRef, (dataSnapshot) => {
             const newData = dataSnapshot.val();
-            console.log("New VirtualHomeCheck Data:", newData);
 
             // Check if 'isRead' doesn't exist or is set to false
             if (!newData.isRead) {
-              // Show a toast indicating that the data hasn't been read
-              console.log(`New VirtualHomeCheck Data for User ${userId}:`, newData);
               const virtualHomeCheckId = dataSnapshot.key;
-              showStyledToast(
-                "info",
-                "Virtual Home Check",
-                `${newData.Name} asking for Virtual Home Check`,
-                () => {
-                  navigate(`/UserProfile/${userId}`);
-                }
-              );
 
-              // Update the 'isRead' field to true using the 'set' method
-              const dataPath = `users/${userId}/VirtualHomeCheck/${dataSnapshot.key}/isRead`;
-              const updates = {};
-              updates[dataPath] = true;
-              update(ref(db), updates);
+              // Check if the key is not one of the excluded values
+              if (
+                virtualHomeCheckId !== 'currentLiveLatVirtual' &&
+                virtualHomeCheckId !== 'currentLiveLogVirtual'
+              ) {
+                setModals((prev) => [...prev, newData])
+
+
+                // Show a toast indicating that the data hasn't been read
+                // showStyledToast(
+                //   "info",
+                //   "Virtual Home Check",
+                //   `${user.userName} asking for Virtual Home Check`,
+                //   () => {
+                //     navigate(`/UserProfile/${userId}`);
+                //   }
+                // );
+
+                // Update the 'isRead' field to true using the 'set' method
+                const dataPath = `users/${userId}/VirtualHomeCheck/${dataSnapshot.key}/isRead`;
+                const updates = {};
+                updates[dataPath] = true;
+                update(ref(db), updates);
+              }
             } else {
               // Data has already been read
-              console.log(`VirtualHomeCheck Data already read for User ${userId}:`, newData);
             }
 
             // You can take further action here with the new VirtualHomeCheck data
@@ -253,6 +313,7 @@ export default function App() {
       console.error('Error listening to new VirtualHomeCheck data:', error);
     }
   }
+
 
 
 
@@ -275,12 +336,12 @@ export default function App() {
           // Listen for new child nodes added to 'Whistle_Blow' for this user
           onChildAdded(whistleBlowDataRef, (dataSnapshot) => {
             const newData = dataSnapshot.val();
-            console.log("New Whistle Blow Data:", newData);
+            // console.log("New Whistle Blow Data:", newData);
 
             // Check if 'isRead' doesn't exist or is set to false
             if (!newData.isRead) {
               // Show a toast indicating that the data hasn't been read
-              console.log(`New Whistle Blow Data for User ${userId}:`, newData);
+              // console.log(`New Whistle Blow Data for User ${userId}:`, newData);
               const whistleBlowId = dataSnapshot.key;
               showStyledToast(
                 "info",
@@ -298,7 +359,7 @@ export default function App() {
               update(ref(db), updates);
             } else {
               // Data has already been read
-              console.log(`Whistle Blow Data already read for User ${userId}:`, newData);
+              // console.log(`Whistle Blow Data already read for User ${userId}:`, newData);
             }
 
             // You can take further action here with the new whistle-blow data
@@ -329,20 +390,21 @@ export default function App() {
           // Listen for new child nodes added to 'wellBeingServicesData' for this user
           onChildAdded(wellBeingServicesDataRef, (dataSnapshot) => {
             const newData = dataSnapshot.val();
-            console.log("new data ", newData);
+            // console.log("new data ", newData);
             // Check if 'isRead' doesn't exist or is set to false
             if (!newData.isRead) {
               // Show a toast indicating that the data hasn't been read
-              console.log(`New Data Added for User ${userId}:`, newData);
+              // console.log(`New Data Added for User ${userId}:`, newData);
               const wellBeingCheckId = dataSnapshot.key;
-              showStyledToast(
-                "info",
-                `WellBeing Check alert`,
-                `${newData.Name} asking for Wellbeing Check`,
-                () => {
-                  navigate(`/WellBeingSingleUser/${userId}/${wellBeingCheckId}`);
-                },
-              )
+              setVirtual((prev) => [...prev, newData]);
+              // showStyledToast(
+              //   "info",
+              //   `WellBeing Check alert`,
+              //   `${newData.Name} asking for Wellbeing Check`,
+              //   () => {
+              //     navigate(`/WellBeingSingleUser/${userId}/${wellBeingCheckId}`);
+              //   },
+              // )
 
               // Update the 'isRead' field to true using the 'set' method
               const dataPath = `users/${userId}/wellBeingServicesData/${dataSnapshot.key}/isRead`;
@@ -351,7 +413,7 @@ export default function App() {
               update(ref(db), updates);
             } else {
               // Data has already been read
-              console.log(`Data already read for User ${userId}:`, newData);
+              // console.log(`Data already read for User ${userId}:`, newData);
             }
 
             // You can take further action here with the new data
@@ -375,12 +437,15 @@ export default function App() {
   }, [direction]);
 
   useEffect(() => {
-    listenToNewWhistleBlowData()
-    listenToNewWellBeingData()
-    listenToNewSOSAlerts()
-    listenToNewPoliceAlerts();
-    listenToNewVirtualHomeCheckData()
-  }, []);
+    if (!loggedIn) {
+      return;
+    }
+    // listenToNewWhistleBlowData()
+    // listenToNewWellBeingData()
+    // listenToNewSOSAlerts()
+    // listenToNewPoliceAlerts();
+    listenToNewVirtualHomeCheckData();
+  }, [loggedIn]);
 
   // Setting page scroll to 0 when changing the route
   useEffect(() => {
@@ -420,6 +485,7 @@ export default function App() {
       onClick={handleConfiguratorOpen}
     >
       <Icon fontSize="small" color="inherit">
+
         settings
       </Icon>
     </MDBox>
@@ -485,6 +551,32 @@ export default function App() {
         {/* <Route path="*" element={<Navigate to="/authentication/sign-in" />} /> */}
       </Routes>
       <ToastContainer />
+
+      {modals.map((notification, index) => (
+        <div className="position-relative">
+          <CustomNoti
+            index={index}
+            key={index}
+            isOpen={true}
+            onClose={() => closeModal(index)}
+            notification={notification}
+            type = {"Virtual Home Check "}
+          />
+        </div >
+      ))}
+      {virtual.map((notification, index) => (
+        <div className="position-relative">
+          <VirtualTravelGuard
+            index={index}
+            key={index}
+            isOpen={true}
+            onClose={() => closeVirtualModal(index)}
+            notification={notification}
+            type = {"Virtual travel Guard "}
+          />
+        </div >
+      ))}
+
     </ThemeProvider>
   );
 }

@@ -41,8 +41,8 @@ function Basic() {
   const [rememberMe, setRememberMe] = useState(false);
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
   const [controller, dispatch] = useMaterialUIController();
-  const [email, setEmail] = useState("karzametechnologies@gmail.com");
-  const [pass, setPass] = useState("karzameTech");
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
   const navigate = useNavigate();
 
   const handleSignIn = useCallback(async () => {

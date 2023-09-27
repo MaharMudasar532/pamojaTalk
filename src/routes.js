@@ -45,19 +45,29 @@ import WhistleBlower from "layouts/WhistleBlower";
 import WellBeingSingleUser from "layouts/WellBeingSingleUser";
 import WhistleBlowSingleUser from "layouts/WhistleBlowSingleUser";
 import VirtualHomeCheck from "layouts/VirtualHomeCheck";
+import NYSC from "layouts/NYSC";
+import AmbulamceProviders from "layouts/AmbulanceProvider";
 
 
 var routes = [
   {
-    type: "collapse",
-    name: "User Managment",
+    type: "",
+    name: "UserManagment",
     key: "dashboard1",
     icon: <Icon fontSize="small">dashboard</Icon>,
     route: "/dashboard/",
     component: <Tables />,
   },
   {
-    type: "collapse",
+    type: "",
+    name: "NYSC",
+    key: "NYSC",
+    icon: <Icon fontSize="small">NYSC</Icon>,
+    route: "/NYSC/",
+    component: <NYSC />,
+  },
+  {
+    type: "",
     name: "Provider Managment",
     key: "dashboard",
     icon: <Icon fontSize="small">worker</Icon>,
@@ -65,7 +75,15 @@ var routes = [
     component: <ProviderManagment />,
   },
   {
-    type: "collapse",
+    type: "",
+    name: "Ambulamce Providers",
+    key: "Ambulamce Providers",
+    icon: <Icon fontSize="small">Ambulamce Providers</Icon>,
+    route: "/AmbulamceProviders",
+    component: <AmbulamceProviders />,
+  },
+  {
+    type: "",
     name: "Virtual Travel Guard",
     key: "Reports",
     icon: <Icon fontSize="small">security</Icon>,
@@ -73,7 +91,7 @@ var routes = [
     component: <WellbeingManagment />,
   },
   {
-    type: "collapse",
+    type: "",
     name: "Virtual Home Check",
     key: "Reports",
     icon: <Icon fontSize="small">security</Icon>,
@@ -81,7 +99,7 @@ var routes = [
     component: <VirtualHomeCheck />,
   },
   {
-    type: "collapse",
+    type: "",
     name: "WhistleBlower",
     key: "WhistleBlower",
     icon: <Icon fontSize="small">security</Icon>,
@@ -89,7 +107,7 @@ var routes = [
     component: <WhistleBlower />,
   },
   {
-    type: "collapse",
+    type: "",
     name: "Sos",
     key: "notifications",
     icon: <Icon fontSize="small">notifications</Icon>,
@@ -105,7 +123,7 @@ var routes = [
   //   component: <PoliceAlerts />,
   // },
   {
-    type: "collapse",
+    type: "",
     name: "vehicle",
     key: "SUBSCRIPTION",
     icon: <Icon fontSize="small">VriveEta</Icon>,
@@ -120,14 +138,14 @@ var routes = [
   //   route: "/tranport",
   //   component: <ModeOfTransport />,
   // },
-  {
-    type: "collapse",
-    name: "Agents",
-    key: "Agents",
-    icon: <Icon fontSize="small">people</Icon>,
-    route: "/Agents/",
-    component: <ProviderManagment />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Agents",
+  //   key: "Agents",
+  //   icon: <Icon fontSize="small">people</Icon>,
+  //   route: "/Agents/",
+  //   component: <ProviderManagment />,
+  // },
   // {
   //   type: "collapse",
   //   name: "SUBSCRIPTION",
@@ -154,7 +172,7 @@ var routes = [
   //   component: <BrodCast />,
   // },
   {
-    type: "collapse",
+    type: "",
     name: "Reports",
     key: "Reports",
     icon: <Icon fontSize="small">report</Icon>,
