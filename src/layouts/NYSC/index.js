@@ -32,6 +32,7 @@ import { Box, Modal } from "@mui/material";
 function NYSC () {
   const naivgate = useNavigate();
   const [controller, dispatch] = useMaterialUIController();
+  const [searchTxt , setSearchText] = useState('');
 
   const [rows, setRows] = useState([]);
   const { columns } = authorsTableData();
@@ -116,34 +117,38 @@ function NYSC () {
     getData();
   }, []);
 
-  // const rows = [
-  //   {
-  //     Name: "test ",
-  //     function: "test ",
-  //     status: "test ",
-  //     employed: "test ",
-  //     action: "test ",
-  //   },
-  //   {
-  //     Name: "test ",
-  //     function: "test ",
-  //     status: "test ",
-  //     employed: "test ",
-  //     action: "test ",
-  //   },
-  //   {
-  //     Name: "test ",
-  //     function: "test ",
-  //     status: "test ",
-  //     employed: "test ",
-  //     action: "test ",
-  //   },
-  // ];
-  // const { columns: pColumns, rows: pRows } = projectsTableData();
+  const handleSearchChange = (event) => {
+    setSearchText(event.target.value);
+  };
+
+
+  useEffect(() => {
+
+    if (searchTxt == '') {
+      getData()
+
+    }
+
+
+    if (searchTxt) {
+      const filteredRows = rows.filter((row) => {
+        console.log("rows " ,row )
+        const { Phone , Name  } = row; // Provide default values for destructuring
+        const searchLowerCase = searchTxt.toLowerCase();
+        return (
+          Phone?.toLowerCase().startsWith(searchLowerCase) ||
+          Name?.toLowerCase().startsWith(searchLowerCase) 
+        );
+      });
+
+      setRows(filteredRows)
+    }
+
+  }, [searchTxt])
 
   return (
     <DashboardLayout>
-      <DashboardNavbar />
+      <DashboardNavbar value={searchTxt} onChange={handleSearchChange} />
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
           <Grid item xs={12}>
@@ -180,25 +185,28 @@ function NYSC () {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-          <Box
-            className="col-md-9 col-sm-9 col-lg-6"
-            style={{
-              backgroundColor: "white",
-              borderRadius: 20,
-              alignSelf: "center",
-              marginTop: "10%",
-              marginLeft: "auto",
-              marginRight: "auto",
-              height: 450,
-            }}
-          >
-            <img
-              src={onClickImageData}
-              alt="post image error"
-              id={"9"}
-              style={{ width: "100%", height: "100%", borderRadius: 20 }}
-            />
-          </Box>
+           <Box
+                className="col-2"
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: 20,
+                  alignSelf: "center",
+                  marginTop: "10%",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
+              >
+                <div className="ms-auto" style={{ marginLeft: 'auto' }}>
+                  <img
+                    src={onClickImageData}
+                    alt="post image error"
+                    height={300}
+                    width={300}
+                    id={"9"}
+                    style={{ backgroundSize: "cover", borderRadius: 20 }}
+                  />
+                </div>
+              </Box>
         </Modal>
           </Grid>
         </Grid>

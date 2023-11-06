@@ -23,14 +23,14 @@ const VirtualTravelGuard = React.memo(({ isOpen, onClose, notification, index, t
                     marginTop: "10%",
                     marginLeft: "auto",
                     marginRight: "auto",
-                    height: 230,
+                    height: 280,
                 }}
             >
                 <div className='row'>
                     <div className='col-5 ms-4 mt-4'>
                         <p style={{ fontSize: 14 }}>
                             Type : {type} <br />
-                            Name  :   {notification.Name}
+
                             {notification.Place ?
                                 <br /> +
                                 " Current Location :" + notification.Place
@@ -46,11 +46,25 @@ const VirtualTravelGuard = React.memo(({ isOpen, onClose, notification, index, t
                             <br />
                             Trip  Time : {notification.ArrivalTime || notification.TripTime}
                             <br />
-                            partner : {notification.PartenerType}
+                            Partner Type  : {notification.PartenerType}
+                            <br />
+                            Partner  Name  :   {notification.Name}
+                            <br />
+                            {notification.transportMode ?
+                                "  Tranport Mode :" + notification.transportMode
+                                : "Tranport Mode : Own Transport"
+                            }
+                                <br />
 
                             {
-                                notification.ArrivalStation ?
-                                    <br /> + "Arrival Station : " + notification.ArrivalStation
+                                notification.currentLocTxt ?
+                                    "Arrival Station : " + notification.currentLocTxt
+                                    : null
+                            }
+                            <br />
+                            {
+                                notification.destLocTxt ?
+                                    "Destination : " + notification.destLocTxt[0]
                                     : null
                             }
                         </p>

@@ -11,9 +11,21 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Avatar from '@mui/material/Avatar';
 
+import WarningIcon from '@mui/icons-material/Warning';
+
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import PaymentIcon from '@mui/icons-material/Payment';
+
+import DriveEtaIcon from '@mui/icons-material/DriveEta';
+
+
 import PersonIcon from '@mui/icons-material/Person';
 
 import Button from '@mui/material/Button';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import GroupIcon from '@mui/icons-material/Group';
+
+
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -57,6 +69,7 @@ import {
   setWhiteSidenav,
   setLoggedIn,
 } from "context";
+import SecurityArmsReq from "layouts/SecurityArmsReq/SecurityArmsRequest";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
@@ -69,6 +82,10 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [showOptions, setShowOptions] = useState(false);
   const [provider, setProvider] = useState(false);
   const [wellBeing, seWellBeing] = useState(false);
+  const [subList, setSubList] = useState(false);
+
+  const [armsList , setArmsList ] = useState('')
+
 
   const handleToggleOptions = useCallback(() => {
     setShowOptions(!showOptions);
@@ -78,6 +95,14 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const handleWellBeing = useCallback(() => {
     seWellBeing(!wellBeing);
   }, [wellBeing])
+
+  const handleOpenArmsList  = useCallback(() => {
+    setArmsList(!armsList);
+  }, [armsList])
+
+  const handleSubList = useCallback(() => {
+    setSubList(!subList);
+  }, [subList])
 
   const handleProviders = () => {
     setProvider(!provider);
@@ -207,7 +232,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           </MDTypography>
         </MDBox>
         <MDBox component={NavLink} to="/" display="flex" alignItems="center">
-          {brand && <MDBox component="img" src={brand} alt="Brand" width="2rem" />}
+          {/* {brand && <MDBox component="img" src={brand} alt="Brand" width="2rem" />} */}
           <MDBox
             width={!brandName && "100%"}
             sx={(theme) => sidenavLogoLabel(theme, { miniSidenav })}
@@ -228,16 +253,61 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         <Button
           variant="text"
           style={{
-            marginLeft: 10,
-            color: 'white', // Set text color to white
-            backgroundColor: 'transparent'
+            marginLeft: 0,
+            color: 'white',
+            backgroundColor: 'transparent',
+            fontSize: 11,
+            display: 'flex', // Use flex display to align content horizontally
+            alignItems: 'center', // Center align the content vertically
+          }}
+          onClick={() => navigate("/UserDashboard")}
+        >
+          {/* Add padding to the right of the PersonIcon */}
+          <span style={{ paddingRight: '24px' }}>
+            <PersonIcon />
+          </span>
+          {`Dashboard`}
+        </Button>
+      </div>
+      <div>
+        <Button
+          variant="text"
+          style={{
+            marginLeft: 0,
+            color: 'white',
+            backgroundColor: 'transparent',
+            fontSize: 11,
+            display: 'flex', // Use flex display to align content horizontally
+            alignItems: 'center', // Center align the content vertically
+          }}
+          onClick={() => navigate("/WhistleBlower")}
+        >
+          {/* Add padding to the right of the PersonIcon */}
+          <span style={{ paddingRight: '24px' }}>
+            <PersonIcon />
+          </span>
+          {`Whistle Blower`}
+        </Button>
+      </div>
+      <div>
 
+        <Button
+          variant="text"
+          style={{
+            marginLeft: 0,
+            color: 'white',
+            backgroundColor: 'transparent',
+            display: 'flex',
+            alignItems: 'center', // Center align the content vertically
           }}
           onClick={handleToggleOptions}
-          startIcon={<PersonIcon />} // Add the icon at the start
-          endIcon={<ArrowDropDownIcon />} // Add the dropdown icon at the end
         >
-          Users Managment
+          {/* Add padding to the right of the PersonIcon */}
+          <span style={{ paddingRight: '24px' }}>
+            <PersonIcon />
+          </span>
+          Users Management
+          <ArrowDropDownIcon />
         </Button>
         {showOptions && (
           // <Paper elevation={1} style={{ marginTop: '1px', padding: '1px' }}>
@@ -284,20 +354,26 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         )}
       </div>
       <div>
+
         <Button
           variant="text"
           style={{
-            marginLeft: 10,
-            color: 'white', // Set text color to white
+            marginLeft: 0,
+            color: 'white',
             backgroundColor: 'transparent',
             fontSize: 12,
-
+            display: 'flex',
+            alignItems: 'center', // Center align the content vertically
           }}
           onClick={handleProviders}
-          startIcon={<PersonIcon />} // Add the icon at the start
-          endIcon={<ArrowDropDownIcon />} // Add the dropdown icon at the end
         >
-          Provider Managment
+          <span style={{ paddingRight: '24px' }}>
+            <PersonIcon />
+          </span>
+          <span style={{ paddingRight: '8px' }}>
+            Provider Managment
+          </span>
+          <ArrowDropDownIcon />
         </Button>
         {provider && (
           // <Paper elevation={1} style={{ marginTop: '1px', padding: '1px' }}>
@@ -343,21 +419,26 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           // </Paper>
         )}
       </div>
+
       <div>
         <Button
           variant="text"
           style={{
-            marginLeft: 10,
-            color: 'white', // Set text color to white
+            marginLeft: 0,
+            color: 'white',
             backgroundColor: 'transparent',
             fontSize: 11,
-
+            display: 'flex',
+            alignItems: 'center', // Center align the content vertically
           }}
           onClick={handleWellBeing}
-          startIcon={<PersonIcon />} // Add the icon at the start
-          endIcon={<ArrowDropDownIcon />} // Add the dropdown icon at the end
         >
+          {/* Add padding to the right of the CheckCircleIcon */}
+          <span style={{ paddingRight: '24px' }}>
+            <CheckCircleIcon />
+          </span>
           WellBeing Check
+          <ArrowDropDownIcon />
         </Button>
         {wellBeing && (
           // <Paper elevation={1} style={{ marginTop: '1px', padding: '1px' }}>
@@ -403,82 +484,212 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           // </Paper>
         )}
       </div>
-
       <div>
         <Button
           variant="text"
           style={{
-            marginLeft: 10,
-            color: 'white', // Set text color to white
+            marginLeft: 0,
+            color: 'white',
             backgroundColor: 'transparent',
             fontSize: 11,
-
+            display: 'flex',
+            alignItems: 'center', // Center align the content vertically
           }}
-          onClick={() => navigate("/WellbeingManagment")}
-          startIcon={<PersonIcon />} // Add the icon at the start
-          endIcon={null} // Add the dropdown icon at the end
+          onClick={handleOpenArmsList}
         >
-          Virtual Travel Guard
+          {/* Add padding to the right of the CheckCircleIcon */}
+          <span style={{ paddingRight: '24px' }}>
+            <CheckCircleIcon />
+          </span>
+          Armed Security  management
+          <ArrowDropDownIcon />
         </Button>
+        {armsList && (
+          // <Paper elevation={1} style={{ marginTop: '1px', padding: '1px' }}>
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', paddingLeft: 0 }}>
+              <NavLink
+                to={'/SecurityArmsRequest'}
+                key={"key"}
+              >
+                <SidenavCollapse
+                  name={"Armed Security Request"}
+                  icon={<SvgIcon fontSize="small">
+                    <circle cx="12" cy="12" r="4" fill="white" />
+                  </SvgIcon>}
+                  // color={textColor}
+                  active={false}
+                  noCollapse={false}
+                />
+              </NavLink>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', paddingLeft: 0 }}>
+              <NavLink
+                // key={key} 
+                to={'/SecurityArms'}
+                // href={"href"}
+                key={"key"}
+              // color={textColor}
+              // target="_blank"
+              // rel="noreferrer"
+              // sx={{ textDecoratin: "none" }}
+              >
+                <SidenavCollapse
+                  name={"Armed Security Values Management "}
+                  icon={<SvgIcon fontSize="small">
+                    <circle cx="12" cy="12" r="4" fill="white" />
+                  </SvgIcon>}                  // color={textColor}
+                  active={false}
+                  noCollapse={false}
+                />
+              </NavLink>
+            </div>
+          </>
+          // </Paper>
+        )}
       </div>
 
+
+
+
       <div>
         <Button
           variant="text"
           style={{
-            marginLeft: 10,
-            color: 'white', // Set text color to white
+            marginLeft: 0,
+            color: 'white',
             backgroundColor: 'transparent',
             fontSize: 11,
-
-          }}
-          onClick={() => navigate("/WhistleBlower")}
-          startIcon={<PersonIcon />} // Add the icon at the start
-          endIcon={null} // Add the dropdown icon at the end
-        >
-          WhistleBlower
-        </Button>
-      </div>
-      <div>
-        <Button
-          variant="text"
-          style={{
-            marginLeft: 10,
-            color: 'white', // Set text color to white
-            backgroundColor: 'transparent',
-            fontSize: 11,
-
+            display: 'flex',
+            alignItems: 'center', // Center align the content vertically
           }}
           onClick={() => navigate("/notifications")}
-          startIcon={<PersonIcon />} // Add the icon at the start
-          endIcon={null} // Add the dropdown icon at the end
         >
+          {/* Add space (margin) to the right of the NotificationsIcon */}
+          <span style={{ marginRight: '24px' }}>
+            <NotificationsIcon />
+          </span>
           SOS
         </Button>
       </div>
+
       <div>
         <Button
           variant="text"
           style={{
-            marginLeft: 10,
-            marginBottom:10,
-            color: 'white', // Set text color to white
+            marginLeft: 0,
+            color: 'white',
             backgroundColor: 'transparent',
             fontSize: 11,
+            display: 'flex',
+            alignItems: 'center', // Center align the content vertically
+          }}
+          onClick={() => navigate("/subs")}
+        >
+          {/* Add space (margin) to the right of the NotificationsIcon */}
+          <span style={{ marginRight: '24px' }}>
+            <PaymentIcon />
+          </span>
+          Subscription
+        </Button>
+      </div>
 
+      <div>
+
+        <Button
+          variant="text"
+          style={{
+            marginLeft: 0,
+            color: 'white',
+            backgroundColor: 'transparent',
+            fontSize: 11,
+            display: 'flex',
+            alignItems: 'center', // Center align the content vertically
+          }}
+          onClick={handleSubList}
+        >
+          {/* Add padding to the right of the CheckCircleIcon */}
+          <span style={{ paddingRight: '24px' }}>
+            <GroupIcon />
+          </span>
+          Subcribers
+          <ArrowDropDownIcon />
+        </Button>
+
+        {subList && (
+          // <Paper elevation={1} style={{ marginTop: '1px', padding: '1px' }}>
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', paddingLeft: 0 }}>
+              <NavLink
+                to={'/activeSub'}
+                key={"key"}
+              >
+                <SidenavCollapse
+                  name={"Active"}
+                  icon={<SvgIcon fontSize="small">
+                    <circle cx="12" cy="12" r="4" fill="white" />
+                  </SvgIcon>}
+                  // color={textColor}
+                  active={false}
+                  noCollapse={false}
+                />
+              </NavLink>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', paddingLeft: 0 }}>
+              <NavLink
+                // key={key} 
+                to={'/nonActiveSub'}
+                // href={"href"}
+                key={"key"}
+              // color={textColor}
+              // target="_blank"
+              // rel="noreferrer"
+              // sx={{ textDecoratin: "none" }}
+              >
+                <SidenavCollapse
+                  name={"Non Active"}
+                  icon={<SvgIcon fontSize="small">
+                    <circle cx="12" cy="12" r="4" fill="white" />
+                  </SvgIcon>}                  // color={textColor}
+                  active={false}
+                  noCollapse={false}
+                />
+              </NavLink>
+            </div>
+          </>
+          // </Paper>
+        )}
+      </div>
+    
+
+      <div>
+        <Button
+          variant="text"
+          style={{
+            marginLeft: 0,
+            marginBottom: 10,
+            color: 'white',
+            backgroundColor: 'transparent',
+            fontSize: 11,
+            display: 'flex',
+            alignItems: 'center', // Center align the content vertically
           }}
           onClick={() => navigate("/vehicle")}
-          startIcon={<PersonIcon />} // Add the icon at the start
-          endIcon={null} // Add the dropdown icon at the end
         >
+          {/* Add padding to the left (start) of the DriveEtaIcon */}
+          <span style={{ paddingRight: '24px' }}>
+            <DriveEtaIcon />
+          </span>
           Vehicle
         </Button>
       </div>
 
       <List>{renderRoutes}</List>
-      <button className="btn btn-danger btn-sm w-50 ms-auto me-auto" onClick={() => handleLogout()}>
-        logout
-      </button>
+      <div className="ms-5 ps-4">
+        <button className="btn btn-danger ms-5 btn-sm w-50 ms-auto me-auto" onClick={() => handleLogout()}>
+          logout
+        </button>
+      </div>
     </SidenavRoot>
   );
 }

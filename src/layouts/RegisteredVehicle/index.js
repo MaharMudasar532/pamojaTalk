@@ -21,6 +21,7 @@ import { Link, useNavigate } from "react-router-dom";
 // import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
+
 // Data
 import authorsTableData from "layouts/tables/data/authorsTableData";
 // import auth from "firebase/firestore";
@@ -35,131 +36,50 @@ import {
   setTransparentSidenav,
   setWhiteSidenav,
 } from "context";
+import { Box, Modal } from "@mui/material";
 
 // import projectsTableData from "layouts/tables/data/projectsTableData";
 function RegisteredVehicle() {
   const [rows, setRows] = useState([]);
 
-  const [data , setData] = useState([]);
+  const [data, setData] = useState([]);
+
+  const [search, setSearchText] = useState('');
 
 
 
   const navigate = useNavigate();
   const [controller, dispatch] = useMaterialUIController();
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [onClickImageData, setOnClickImageData] = useState("");
+  const handleImageClick = (url) => {
+    setIsModalOpen(true);
+    setOnClickImageData(url);
+  };
+
 
 
   //   const { columns } = authorsTableData();
   const columns = [
-    { Header: "SR", accessor: "SR", align: "left" },
-    { Header: "Name", accessor: "Name", align: "left" },
-    { Header: "Number", accessor: "Number", align: "left" },
-    { Header: "Image", accessor: "Image", align: "left" },
-    // { Header: "Phone", accessor: "Phone", align: "center" },
-    // { Header: "Status", accessor: "Status", align: "center" },
-    // { Header: "verify", accessor: "verify", align: "center" },
-    // { Header: "action", accessor: "action", align: "center" },
+    { Header: "SR", accessor: "SR", align: "center" },
+    { Header: "Name", accessor: "Name", align: "center" },
+    { Header: "Number", accessor: "Number", align: "center" },
+    { Header: "Pin No", accessor: "Pin", align: "center" },
+    { Header: "Image", accessor: "Image", align: "center" },
+
   ];
 
 
 
-  // const getData = async () => {
-  //   setRows([]);
-  //   let index = 0
-  //   const dataBase = getDatabase();
-  //   const userss = ref(dataBase, "/Operators");
-  //   onValue(userss, (snapShot) => {
-  //     //   console.log("users", snapShot);
-  //     snapShot.forEach((doc) => {
-  //       index = index + 1;
-  //       const item = doc.val();
-  //       console.log(item);
-  //       const key = doc.key;
-  //       console.log("ket", key);
-  //       const rowItem = {
-  //         SR: index,
-  //         Name: item.workerName,
-  //         Type: item.workerType,
-  //         Image: (
-  //           <img
-  //             src={item.workerImage}
-  //             alt="react logo"
-  //             style={{ width: "50px", height: "50px", borderRadius: "50%" }}
-  //           />
-  //         ),
-  //         Phone: item.workerPhoneNumber,
-  //         Status: item.verified == true ? "Accepted" : `pending`,
-  //         verify:
-  //           item.verified == false ? (
-  //             <button
-  //               type="button"
-  //               key={item.workerPhoneNumber}
-  //               onClick={(e) => {
-  //                 acceptWorker(item, key);
-  //               }}
-  //               class="btn btn-sm text-light btn-secondary"
-  //             >
-  //               Accept
-  //             </button>
-  //           ) : (
-  //             <button
-  //               type="button"
-  //               key={item.workerPhoneNumber}
-  //               onClick={(e) => {
-  //                 acceptWorker(item, key);
-  //               }}
-  //               class="btn btn-sm text-light btn-success"
-  //             >
-  //               verified
-  //             </button>
-  //           ),
-  //         //   employed: item.userImage,
-  //         action: <Link to={`/locate/${item.key}`}> Track </Link>,
-  //       };
-  //       setRows((curr) => [...curr, rowItem]);
-  //     });
-  //     // console.log("snapshot" , snapShot);
-  //   });
-  //   return;
-  //   const querySnapshot = await getDocs(collection(db, "Users"));
-  //   querySnapshot.forEach((doc) => {
-  //     console.log("Users data ", doc);
-  //   });
-  //   const arr = [];
-  //   querySnapshot.forEach((doc) => {
-  //     const item = doc.data();
-  //     console.log("user data >>>", item);
-  //     arr.push({
-  //       Name: item.name,
-  //       Email: item.email,
-  //       Image: (
-  //         <img
-  //           src={item.userImage}
-  //           alt="react logo"
-  //           style={{ width: "50px", height: "50px", borderRadius: "50%" }}
-  //         />
-  //       ),
-  //       Phone: item.phoneNumber,
-  //       Gender: item.gender,
-  //       status: item.userEmail,
-  //       employed: item.userImage,
-  //       action: <Link to={`/locate/${item.key}`}> Track </Link>,
-  //     });
-  //   });
-  //   setRows(arr);
-  // };
   const naivgate = useNavigate();
   let user = localStorage.getItem("user");
-  // console.log("storage user >>>>>>>", user);
-  // if (!user) {
-  // naivgate("/authentication/sign-in");
-  // }
+
   useEffect(() => {
-    // getData();
+    getData();
   }, []);
 
-  
-  useEffect(() => {
+  const getData = () => {
     // Reference to the Firebase database
     setRows([])
     const database = getDatabase();
@@ -190,8 +110,10 @@ function RegisteredVehicle() {
                   SR: index,
                   Name: vehicle.vehicleName,
                   Number: vehicle.vehicleNumber,
+                  Pin: vehicle.Pin,
                   Image: (
                     <img
+                      onClick={() => handleImageClick(vehicle.imgVehicle)}
                       src={vehicle.imgVehicle}
                       alt="Not Available"
                       style={{ width: "50px", height: "50px", borderRadius: "50%" }}
@@ -199,7 +121,7 @@ function RegisteredVehicle() {
                   )
                 }
 
-                setRows((prev)=>[...prev, rowItem]);
+                setRows((prev) => [...prev, rowItem]);
 
                 const vehicleObject = {
                   userId: userId,
@@ -208,7 +130,7 @@ function RegisteredVehicle() {
                   imgVehicle: vehicle.imgVehicle,
                 };
 
-                console.log("vehicle object "  , vehicleObject)
+                console.log("vehicle object ", vehicleObject)
 
                 // Push the object to the dataArray
                 // dataArray.push(vehicleObject);
@@ -221,36 +143,44 @@ function RegisteredVehicle() {
       // Set the state with the array of objects
       // setData(dataArray);
     });
-  }, []);
+  }
 
-  // const rows = [
-  //   {
-  //     Name: "test ",
-  //     function: "test ",
-  //     status: "test ",
-  //     employed: "test ",
-  //     action: "test ",
-  //   },
-  //   {
-  //     Name: "test ",
-  //     function: "test ",
-  //     status: "test ",
-  //     employed: "test ",
-  //     action: "test ",
-  //   },
-  //   {
-  //     Name: "test ",
-  //     function: "test ",
-  //     status: "test ",
-  //     employed: "test ",
-  //     action: "test ",
-  //   },
-  // ];
-  // const { columns: pColumns, rows: pRows } = projectsTableData();
+
+
+  const handleSearchChange = (event) => {
+    setSearchText(event.target.value);
+  };
+
+
+  useEffect(() => {
+
+    if (search == '') {
+      getData()
+
+    }
+
+
+    if (search) {
+      const filteredRows = rows.filter((row) => {
+        const { Number = '', Name = '' , Pin  } = row; // Provide default values for destructuring
+        const searchLowerCase = search.toLowerCase();
+        return (
+          Number.toLowerCase().startsWith(searchLowerCase) ||
+          Name.toLowerCase().startsWith(searchLowerCase) ||
+          Pin.toLowerCase().startsWith(searchLowerCase) 
+          
+        );
+      });
+
+      setRows(filteredRows)
+    }
+
+  }, [search])
+
 
   return (
     <DashboardLayout>
-      <DashboardNavbar />
+      <DashboardNavbar value={search} onChange={handleSearchChange} />
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
           <Grid item xs={12}>
@@ -266,7 +196,7 @@ function RegisteredVehicle() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Agents
+                  Vehicles
                 </MDTypography>
               </MDBox>
               <MDBox pt={3}>
@@ -282,6 +212,35 @@ function RegisteredVehicle() {
           </Grid>
         </Grid>
       </MDBox>
+
+      <Modal
+        open={isModalOpen}
+        style={{ borderRadius: 20 }}
+        onClose={() => setIsModalOpen(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          className="col-md-9 col-sm-9 col-lg-6"
+          style={{
+            backgroundColor: "white",
+            borderRadius: 20,
+            alignSelf: "center",
+            marginTop: "10%",
+            marginLeft: "auto",
+            marginRight: "auto",
+            height: 450,
+          }}
+        >
+          <img
+            src={onClickImageData}
+            onClick={() => handleImageClick(onClickImageData)}
+            alt="post image error"
+            id={"9"}
+            style={{ width: "100%", height: "100%", borderRadius: 20 }}
+          />
+        </Box>
+      </Modal>
       {/* <Footer /> */}
     </DashboardLayout>
   );

@@ -6,6 +6,9 @@ import Card from "@mui/material/Card";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 
+import VisibilityIcon from '@mui/icons-material/Visibility';
+
+
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -14,10 +17,6 @@ import { Link, useNavigate } from "react-router-dom";
 import DataTable from "examples/Tables/DataTable";
 
 import { ToastContainer, toast } from "react-toastify";
-
-// Data
-import authorsTableData from "layouts/tables/data/authorsTableData";
-// import auth from "firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
 // import { collection, getDoc } from "firebase/firestore/lite";
 import { getDatabase, ref, onValue, set, get, onChildAdded, child, update, onChildChanged } from "firebase/database";
@@ -29,11 +28,10 @@ import {
     setTransparentSidenav,
     setWhiteSidenav,
 } from "context";
-import { Box, ListItem, Modal } from "@mui/material";
+import { Box, Button, ListItem, Modal } from "@mui/material";
 import { object } from "prop-types";
 import { listenForNewSosWithNotification } from "components/services/AllNotificationListener";
-import { showStyledToast } from "components/toastAlert";
-
+import CountdownRow from "components/CounDown";
 
 // import projectsTableData from "layouts/tables/data/projectsTableData";
 function VirtualHomeCheck() {
@@ -41,6 +39,15 @@ function VirtualHomeCheck() {
 
     const navigate = useNavigate();
     const [controller, dispatch] = useMaterialUIController();
+
+    const [openWellBeingMod, setWellBeingMod] = useState(false);
+
+    const [modData, setModData] = useState([]);
+
+
+    const closeModal = useCallback((index) => {
+        setWellBeingMod(false)
+    }, [openWellBeingMod])
 
 
     const [processedSosIds, setProcessedSosIds] = useState([]);
@@ -62,18 +69,55 @@ function VirtualHomeCheck() {
     }, [])
 
 
+    function addMinutesToTime(inputTime, minutesToAdd) {
+        // Step 1: Parse the input time
+        const timeComponents = inputTime.match(/^(\d{1,2}):(\d{2})\s?([APap][Mm])$/);
+        // if (!timeComponents) {
+        //   throw new Error("Invalid time format. Please use 'hh:mm AM/PM' format.");
+        // }
+      
+        let [, hours, minutes, amPm] = timeComponents;
+        hours = parseInt(hours, 10);
+        minutes = parseInt(minutes, 10);
+      
+        if (amPm.toLowerCase() === "pm" && hours !== 12) {
+          hours += 12;
+        } else if (amPm.toLowerCase() === "am" && hours === 12) {
+          hours = 0;
+        }
+      
+        // Step 2: Create a Date object and add minutes
+        const parsedTime = new Date();
+        parsedTime.setHours(hours, minutes);
+        parsedTime.setMinutes(parsedTime.getMinutes() + minutesToAdd);
+      
+        // Step 3: Format the result
+        const formattedHours = parsedTime.getHours() % 12 || 12;
+        const formattedMinutes = parsedTime.getMinutes();
+        const formattedAmPm = parsedTime.getHours() >= 12 ? "PM" : "AM";
+      
+        return `${formattedHours}:${String(formattedMinutes).padStart(2, "0")} ${formattedAmPm}`;
+      }
+      
+   
+      
+
+
 
     //   const { columns } = authorsTableData();
     const columns = [
-        { Header: "SR", accessor: "SR", align: "left" },
-        { Header: "Type", accessor: "Type", align: "left" },
-        // { Header: "Sender", accessor: "userName", align: "left" },
-        { Header: "Selfie", accessor: "userImage", align: "left" },
-        { Header: "Date", accessor: "Date", align: "left" },
-        { Header: "Interval", accessor: "interval", align: "left" },
-        // { Header: "Partner", accessor: "partner", align: "left" },
-        { Header: " Time", accessor: "time", align: "center" },
+        { Header: "SR", accessor: "SR", align: "center" },
+        // { Header: "Type", accessor: "Type", align: "center" },
+        // { Header: "Sender", accessor: "userName", align: "center" },
+        { Header: "Selfie", accessor: "userImage", align: "center" },
+        { Header: "Date", accessor: "Date", align: "center" },
+        { Header: "Interval", accessor: "interval", align: "center" },
+        { Header: "Start Time", accessor: "time", align: "center" },
+        { Header: "End Time", accessor: "endtime", align: "center" },
+        { Header: "count Down ", accessor: "cd", align: "center" },
         { Header: "Location", accessor: "Location", align: "center" },
+        { Header: "View", accessor: "Action", align: "center" },
+        { Header: "Selfie/Location Id", accessor: "selVeh", align: "center" },
         { Header: "Map Location", accessor: "map", align: "center" },
     ];
 
@@ -87,6 +131,7 @@ function VirtualHomeCheck() {
                 if (snapshot.exists()) {
                     const usersData = snapshot.val();
                     const allVirtualHomeCheckItems = [];
+                    console.log("user data of wellbeing ", usersData);
 
                     // Loop over the keys of the snapshot (each user)
                     for (const userId in usersData) {
@@ -103,7 +148,7 @@ function VirtualHomeCheck() {
                                 for (const virtualHomeCheckId in virtualHomeCheckData) {
                                     if (Object.hasOwnProperty.call(virtualHomeCheckData, virtualHomeCheckId)) {
                                         const virtualHomeCheckItem = virtualHomeCheckData[virtualHomeCheckId];
-                                        i = i +1;
+                                        i = i + 1;
                                         // Check if the virtualHomeCheckItem has child objects
                                         if (Object.keys(virtualHomeCheckItem).length > 0) {
                                             // Create a VirtualHomeCheckData object and add it to the array
@@ -112,25 +157,71 @@ function VirtualHomeCheck() {
                                                 Type: "Virtual Home Check",
                                                 Date: virtualHomeCheckItem.Date,
                                                 time: virtualHomeCheckItem.Time,
+                                                cd:
+                                                <CountdownRow key={i}
+                                                 date={virtualHomeCheckItem.Date}
+                                                 time ={virtualHomeCheckItem.Time}
+                                                 interval={virtualHomeCheckItem.Interval}
+
+                                                  />,
+                                                endtime: addMinutesToTime(virtualHomeCheckItem.Time , virtualHomeCheckItem.Interval),
+                                                selVeh: (
+                                                    <>
+                                                        <Button
+                                                            onClick={() => {
+                                                                handleImageClick(
+                                                                    user.userSelfie
+
+                                                                )
+                                                            }}
+
+                                                            style={{ padding: 0 }} className="btn btn-priamry btn-sm p-0 m-0 bg-primary text-light btn-sm  ">
+                                                            Selfie
+                                                        </Button>
+                                                        <Button
+                                                            onClick={() => {
+                                                                handleImageClick(
+                                                                    user.userVehicle 
+
+                                                                )
+                                                            }}
+                                                            style={{ padding: 0 }}
+                                                            className=" ms-1 btn btn-secondary btn-sm px-1 p-0 m-0 bg-secondary  text-light btn-sm  ">
+                                                             Location Id
+                                                        </Button>
+                                                    </>
+
+                                                ),
                                                 userName: virtualHomeCheckItem.Name,
                                                 No: virtualHomeCheckItem.VehicleNumber,
                                                 partner: virtualHomeCheckItem.PartenerType,
                                                 Location: virtualHomeCheckItem.Place,
-                                                interval: virtualHomeCheckItem.Interval
+                                                interval: virtualHomeCheckItem.Interval + ' Minutes'
                                                 ,
+                                                Action: (<Button
+                                                    onClick={() => {
+                                                        setModData(virtualHomeCheckItem);
+                                                        console.log("mod data ", virtualHomeCheckItem)
+                                                        setWellBeingMod(true);
+                                                    }}
+
+                                                    style={{ padding: 7, backgroundColor: "#f2f2f2" }}>
+                                                    <VisibilityIcon />
+                                                </Button>),
                                                 userImage: (
                                                     <img
                                                         onClick={() => handleImageClick(virtualHomeCheckItem.userSelfie)}
                                                         src={virtualHomeCheckItem.userSelfie
                                                         }
                                                         alt="No picture"
-                                                        style={{ backgroundSize:"cover", width: '50px', height: '50px', borderRadius: '50%' }}
+                                                        style={{ backgroundSize: "cover", width: '50px', height: '50px', borderRadius: '50%' }}
                                                     />
                                                 ),
                                                 latitude,
                                                 longitude,
                                                 map: <Link to={`/locate/${userId}`}> Track </Link>,
                                                 virtualHomeCheck: virtualHomeCheckItem,
+
                                             };
 
                                             allVirtualHomeCheckItems.push(virtualHomeCheckDataObject);
@@ -142,7 +233,7 @@ function VirtualHomeCheck() {
                     }
 
                     // Do something with allVirtualHomeCheckItems array (if needed)
-                    setRows(allVirtualHomeCheckItems);
+                    setRows(allVirtualHomeCheckItems.reverse());
                     console.log(allVirtualHomeCheckItems);
                 } else {
                     console.log('No users found.');
@@ -155,371 +246,14 @@ function VirtualHomeCheck() {
 
 
 
-    //   const getVirtualHomeCheck = useCallback(() => {
-    //     const db = getDatabase();
-    //     const usersRef = ref(db, 'users');
-
-    //     get(usersRef)
-    //       .then((snapshot) => {
-    //         setRows([]);
-    //         if (snapshot.exists()) {
-    //           const usersData = snapshot.val();
-    //           const allVirtualHomeCheckItems = [];
-
-    //           // Loop over the keys of the snapshot (each user)
-    //           for (const userId in usersData) {
-    //             if (Object.hasOwnProperty.call(usersData, userId)) {
-    //               const user = usersData[userId];
-    //               const { userImage, latitude, longitude } = user;
-
-    //               // Check if the user has a VirtualHomeCheck collection
-    //               if (user.VirtualHomeCheck) {
-    //                 const virtualHomeCheckData = user.VirtualHomeCheck;
-    //                 let i = 0;
-
-    //                 // Loop over the keys of the VirtualHomeCheckData object for this user
-    //                 for (const virtualHomeCheckId in virtualHomeCheckData) {
-    //                   if (Object.hasOwnProperty.call(virtualHomeCheckData, virtualHomeCheckId)) {
-    //                     const virtualHomeCheckItem = virtualHomeCheckData[virtualHomeCheckId];
-    //                     i = i +1;
-    //                     // Create a VirtualHomeCheckData object and add it to the array
-    //                     const virtualHomeCheckDataObject = {
-    //                         SR:i,
-    //                       Type: "Virtual Home Check"
-    //                       ,
-    //                       Date: virtualHomeCheckItem.Date,
-    //                       time: virtualHomeCheckItem.Time,
-    //                       userName: virtualHomeCheckItem.Name,
-    //                       No: virtualHomeCheckItem.VehicleNumber,
-    //                       partner: virtualHomeCheckItem.PartenerType,
-    //                       Location:virtualHomeCheckItem.Place,
-    //                       interval:virtualHomeCheckItem.Interval
-    //                       ,
-    //                       userImage: (
-    //                         <img
-    //                           onClick={() => handleImageClick(userImage)}
-    //                           src={userImage}
-    //                           alt="No picture"
-    //                           style={{ width: '50px', height: '50px', borderRadius: '50%' }}
-    //                         />
-    //                       ),
-    //                       latitude,
-    //                       longitude,
-    //                       map: <Link to={`/locate/${userId}`}> Track </Link>,
-    //                       virtualHomeCheck: virtualHomeCheckItem,
-    //                     };
-
-    //                     allVirtualHomeCheckItems.push(virtualHomeCheckDataObject);
-    //                   }
-    //                 }
-    //               }
-    //             }
-    //           }
-
-    //           // Sort allVirtualHomeCheckItems by timestamp (assuming 'ArrivalDate' and 'ArrivalTime' fields exist)
-    //           allVirtualHomeCheckItems.sort((a, b) => {
-    //             const dateTimeA = new Date(`${a.Date} ${a.time}`);
-    //             const dateTimeB = new Date(`${b.Date} ${b.time}`);
-    //             return dateTimeB - dateTimeA; // Sort in descending order
-    //           });
-
-    //           // Do something with allVirtualHomeCheckItems array (if needed)
-    //           setRows(allVirtualHomeCheckItems);
-    //           console.log(allVirtualHomeCheckItems);
-    //         } else {
-    //           console.log('No users found.');
-    //         }
-    //       })
-    //       .catch((error) => {
-    //         console.error('Error fetching users:', error);
-    //       });
-    //   }, []);
-
-
-
-
-    //   const getWellBeingServices = useCallback(() => {
-    //     const db = getDatabase();
-    //     const usersRef = ref(db, 'users');
-
-    //     get(usersRef)
-    //       .then((snapshot) => {
-    //         setRows([]);
-    //         if (snapshot.exists()) {
-    //           const usersData = snapshot.val();
-    //           const usersWithWellBeingServices = [];
-
-    //           // Loop over the keys of the snapshot
-    //           for (const userId in usersData) {
-    //             if (Object.hasOwnProperty.call(usersData, userId)) {
-    //               const user = usersData[userId];
-    //               const { userImage, latitude, longitude } = user;
-
-    //               // Check if the user has a wellBeingServicesData collection
-    //               if (user.wellBeingServicesData) {
-    //                 const wellBeingData = user.wellBeingServicesData;
-
-    //                 // Create an array to store the wellBeingServiceItems
-    //                 const wellBeingServiceItems = [];
-
-    //                 // Loop over the keys of the wellBeingServicesData object
-    //                 for (const wellBeingServiceId in wellBeingData) {
-    //                   if (Object.hasOwnProperty.call(wellBeingData, wellBeingServiceId)) {
-    //                     const wellBeingServiceItem = wellBeingData[wellBeingServiceId];
-    //                     wellBeingServiceItems.push({
-    //                       id: wellBeingServiceId,
-    //                       data: wellBeingServiceItem
-    //                     });
-    //                   }
-    //                 }
-
-    //                 // Loop through sorted wellBeingServiceItems
-    //                 let i = 0;
-    //                 for (const wellBeingServiceItem of wellBeingServiceItems) {
-    //                   console.log('item of well being check', wellBeingServiceItem)
-
-    //                   i++;
-
-    //                   // Create a wellBeingServicesData object and add it to the array
-    //                   const wellBeingServicesDataObject = {
-    //                     sr: i,
-    //                     ker: i,
-    //                     Type: (
-    //                       <button className={` btn btn-sm`}>{wellBeingServiceItem.data.Type}</button>
-    //                     ),
-    //                     Date: wellBeingServiceItem.data.ArrivalDate,
-    //                     time: wellBeingServiceItem.data.ArrivalTime,
-    //                     userName: wellBeingServiceItem.data.Name,
-    //                     No: wellBeingServiceItem.data.VehicleNumber,
-    //                     partner: wellBeingServiceItem.data.PartenerType,
-    //                     userImage: (
-    //                       <img
-    //                         onClick={() => handleImageClick(userImage)}
-    //                         src={userImage}
-    //                         alt="react logo"
-    //                         style={{ width: '50px', height: '50px', borderRadius: '50%' }}
-    //                       />
-    //                     ),
-    //                     latitude,
-    //                     longitude,
-    //                     Location: <Link to={`/locate/${userId}`}> Track </Link>,
-    //                     wellBeingService: wellBeingServiceItem.data,
-    //                   };
-    //                   usersWithWellBeingServices.push(wellBeingServicesDataObject);
-    //                 }
-    //               }
-    //             }
-    //           }
-
-    //           // usersWithWellBeingServices.sort((a, b) => {
-    //           //   const dateA = new Date(a.time).getTime();
-    //           //   const dateB = new Date(b.time).getTime();
-    //           //   return dateB - dateA; // Change to descending order
-    //           // });
-
-    //           // Do something with usersWithWellBeingServices array (if needed)
-    //           setRows(usersWithWellBeingServices.reverse());
-    //           console.log(usersWithWellBeingServices);
-    //         } else {
-    //           console.log('No users found.');
-    //         }
-    //       })
-    //       .catch((error) => {
-    //         console.error('Error fetching users:', error);
-    //       });
-    //   }, []);
-
-
-
-
-
-
-
-    // Call the function to start listening
-    // useEffect(() => {
-    //   listenToNewWellBeingData();
-    // }, []);
-
-
-
-
-
-
-
-
-
-    // const listenForNewSosWithNotification = () => {
-    //   const db = getDatabase();
-    //   const usersRef = ref(db, 'users');
-
-    //   onChildChanged(usersRef, (snapshot) => {
-    //     const user = snapshot.val();
-    //     const { userName } = user;
-
-    //     if (user.SOS) {
-    //       const sosData = user.SOS;
-
-    //       for (const sosId in sosData) {
-    //         const sosItem = sosData[sosId];
-
-    //         if (!sosItem.isRead) {
-    //           // Show a notification for the new SOS
-    //           toast.warning(`${userName} Needs Emergency Help`, { autoClose: 3000 });
-
-    //           // Update the isRead property to true
-    //           const sosRef = child(ref(db, `users/${user.uid}/SOS`), sosId);
-    //           // update(sosRef, { isRead: true });
-    //         }
-    //       }
-    //     }
-    //   });
-    // };
-
-
-
-
-
-
-
-    //   const acceptWorker = (item, key) => {
-    //     // console.log("itemse", item);
-    //     let data = item;
-    //     data.verified = !data.verified;
-    //     const db = getDatabase();
-    //     set(ref(db, "Operators/" + key), {
-    //       ...data,
-    //     }).then(() => {
-    //       alert("Worker has been approved");
-    //     });
-    //     const interval = setTimeout(() => {
-    //       getData();
-    //     }, 2000);
-    //     return () => clearInterval(interval);
-    //   };
-
-    //   const getData = async () => {
-    //     setRows([]);
-    //     let index = 0
-    //     const dataBase = getDatabase();
-    //     const userss = ref(dataBase, "/Operators");
-    //     onValue(userss, (snapShot) => {
-    //       //   console.log("users", snapShot);
-    //       snapShot.forEach((doc) => {
-    //         index = index + 1;
-    //         const item = doc.val();
-    //         console.log(item);
-    //         const key = doc.key;
-    //         console.log("ket", key);
-    //         const rowItem = {
-    //           SR: index,
-    //           Name: item.workerName,
-    //           time: item.data,
-    //           Type: item.workerType,
-    //           Image: (
-    //             <img
-    //               onClick={() => handleImageClick(item.userImage)}
-    //               src={item.workerImage}
-    //               alt="react logo"
-    //               style={{ width: "50px", height: "50px", borderRadius: "50%" }}
-    //             />
-    //           ),
-    //           Phone: item.workerPhoneNumber,
-    //           Status: item.verified == true ? "Accepted" : `pending`,
-    //           verify:
-    //             item.verified == false ? (
-    //               <button
-    //                 type="button"
-    //                 key={item.workerPhoneNumber}
-    //                 onClick={(e) => {
-    //                   acceptWorker(item, key);
-    //                 }}
-    //                 class="btn btn-sm text-light btn-secondary"
-    //               >
-    //                 Accept
-    //               </button>
-    //             ) : (
-    //               <button
-    //                 type="button"
-    //                 key={item.workerPhoneNumber}
-    //                 onClick={(e) => {
-    //                   acceptWorker(item, key);
-    //                 }}
-    //                 class="btn btn-sm text-light btn-success"
-    //               >
-    //                 verified
-    //               </button>
-    //             ),
-    //           //   employed: item.userImage,
-    //           Location: <Link to={`/locate/${item.key}`}> Track </Link>,
-    //         };
-    //         setRows((curr) => [...curr, rowItem]);
-    //       });
-    //       // console.log("snapshot" , snapShot);
-    //     });
-    //     return;
-    //     const querySnapshot = await getDocs(collection(db, "Users"));
-    //     querySnapshot.forEach((doc) => {
-    //       console.log("Users data ", doc);
-    //     });
-    //     const arr = [];
-    //     querySnapshot.forEach((doc) => {
-    //       const item = doc.data();
-    //       console.log("user data >>>", item);
-    //       arr.push({
-    //         Name: item.name,
-    //         Email: item.email,
-    //         Image: (
-    //           <img
-    //             src={item.userImage}
-    //             alt="react logo"
-    //             style={{ width: "50px", height: "50px", borderRadius: "50%" }}
-    //           />
-    //         ),
-    //         Phone: item.phoneNumber,
-    //         Gender: item.gender,
-    //         status: item.userEmail,
-    //         employed: item.userImage,
-    //         action: <Link to={`/locate/${item.key}`}> Track </Link>,
-    //       });
-    //     });
-    //     setRows(arr);
-    //   };
     const naivgate = useNavigate();
     let user = localStorage.getItem("user");
-    // console.log("storage user >>>>>>>", user);
-    // if (!user) {
-    // naivgate("/authentication/sign-in");
-    // }
+
     useEffect(() => {
         // getData();
         // listenForNewSosWithNotification()
         getVirtualHomeCheck()
     }, []);
-
-    // const rows = [
-    //   {
-    //     Name: "test ",
-    //     function: "test ",
-    //     status: "test ",
-    //     employed: "test ",
-    //     action: "test ",
-    //   },
-    //   {
-    //     Name: "test ",
-    //     function: "test ",
-    //     status: "test ",
-    //     employed: "test ",
-    //     action: "test ",
-    //   },
-    //   {
-    //     Name: "test ",
-    //     function: "test ",
-    //     status: "test ",
-    //     employed: "test ",
-    //     action: "test ",
-    //   },
-    // ];
-    // const { columns: pColumns, rows: pRows } = projectsTableData();
 
     return (
         <DashboardLayout>
@@ -540,7 +274,7 @@ function VirtualHomeCheck() {
                                 coloredShadow="info"
                             >
                                 <MDTypography variant="h6" color="white">
-                                    User
+                                    Virtual Home Check
                                 </MDTypography>
                             </MDBox>
                             <MDBox pt={3}>
@@ -561,7 +295,7 @@ function VirtualHomeCheck() {
                             aria-describedby="modal-modal-description"
                         >
                             <Box
-                                className="col-md-9 col-sm-9 col-lg-6"
+                                className="col-2 bg-none"
                                 style={{
                                     backgroundColor: "white",
                                     borderRadius: 20,
@@ -569,17 +303,65 @@ function VirtualHomeCheck() {
                                     marginTop: "10%",
                                     marginLeft: "auto",
                                     marginRight: "auto",
-                                    height: 450,
                                 }}
                             >
-                                <img
-                                    src={onClickImageData}
-                                    alt="post image error"
-                                    id={"9"}
-                                    style={{ width: "100%", height: "100%", borderRadius: 20 }}
-                                />
+                                <div className="ms-auto" style={{ marginLeft: 'auto' }}>
+                                    <img
+                                        src={onClickImageData}
+                                        alt="post image error"
+                                        height={300}
+                                        width={300}
+                                        id={"9"}
+                                        style={{ backgroundSize: "cover", borderRadius: 20 }}
+                                    />
+                                </div>
                             </Box>
                         </Modal>
+                        <Modal
+                            open={openWellBeingMod}
+                            // className="position-relative"
+                            style={{ borderRadius: 5, }}
+                            onClose={() => setWellBeingMod(false)}
+                            aria-labelledby="modal-modal-title"
+                            aria-describedby="modal-modal-description"
+                        >
+                            <Box
+                                className="col-8"
+                                style={{
+                                    backgroundColor: "white",
+                                    borderRadius: 20,
+                                    alignSelf: "center",
+                                    marginTop: "10%",
+                                    marginLeft: "auto",
+                                    marginRight: "auto",
+                                    height: 230,
+                                }}
+                            >
+                                <div className='row'>
+                                    <div className='col-6 ms-4 mt-4'>
+                                        <p>
+                                            Type : {"Virrtual Home Check"}
+                                            <br />
+                                            Date :   {modData.Date}
+                                            <br />
+                                            Time : {modData.Time}
+                                            <br />
+                                            Interal : {modData.Interval} Minutes
+                                            <br />
+                                            Location :   {modData.Place}
+                                        </p>
+
+                                    </div>
+
+                                    <div className='col mt-2'>
+                                        <img style={{ backgroundSize: "cover" }} alt="no image attaiched by user" height={200} width={200} src={modData.userSelfie} />
+
+                                    </div>
+                                </div>
+
+                            </Box>
+                        </Modal >
+
                     </Grid>
                 </Grid>
             </MDBox>

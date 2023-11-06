@@ -54,7 +54,7 @@ import { listenForNewSosWithNotification } from "components/services/AllNotifica
 import { listenToNewWellBeingData } from "components/services/AllNotificationListener";
 import CustomNoti from "components/CustomNoti";
 import VirtualTravelGuard from "components/VirtualTravelGuard";
-
+import SecReqNoti from "components/SecReqNoti";
 
 
 
@@ -66,10 +66,24 @@ export default function App() {
 
   const [virtual, setVirtual] = useState([]);
 
+  const [secReq, secSecReq] = useState([]);
 
   const openVirtualModal = useCallback((notification) => {
     setVirtual([...virtual, notification]);
   }, [virtual])
+
+
+
+  const openSecReqModal = useCallback((notification) => {
+    secSecReq([...secReq, notification]);
+  }, [secReq])
+
+
+  const closeSecModal = useCallback((index) => {
+    const updatedModals = [...secReq];
+    updatedModals.splice(index, 1);
+    secSecReq(updatedModals);
+  }, [secReq])
 
 
   const closeVirtualModal = useCallback((index) => {
@@ -190,8 +204,9 @@ export default function App() {
   }
 
   useEffect(() => {
+    // setMiniSidenav(dispatch, true )
 
-
+    setOnMouseEnter(true);
     // showStyledToast(
     //   "info",
     //   "SOS Alert",
@@ -425,6 +440,58 @@ export default function App() {
     }
   }
 
+  function listenToNewScurity_agent_requestsData() {
+    try {
+      const db = getDatabase();
+      const usersRef = ref(db, 'users');
+  
+      // Listen for changes in the 'users' reference
+      onChildAdded(usersRef, (userSnapshot) => {
+        const user = userSnapshot.val();
+        const userId = userSnapshot.key;
+  
+        // Check if the user has 'Scurity_agent_requests'
+        if (user.Scurity_agent_requests) {
+          const Scurity_agent_requestsRef = ref(db, `users/${userId}/Scurity_agent_requests`);
+  
+          // Listen for new child nodes added to 'Scurity_agent_requests' for this user
+          onChildAdded(Scurity_agent_requestsRef, (dataSnapshot) => {
+            const newData = dataSnapshot.val();
+  
+            // Merge the user and newData objects
+            const mergedData = { ...user, ...newData };
+            console.log("Merged Data:", mergedData);
+  
+            // Check if 'isRead' doesn't exist or is set to false
+            if (!('isRead' in newData) || newData.isRead === false) {
+              // Mark the data as read
+              const dataPath = `users/${userId}/Scurity_agent_requests/${dataSnapshot.key}/isRead`;
+              const updates = {};
+              updates[dataPath] = true;
+              update(ref(db), updates);
+  
+              // Do something with the merged data only if it's not read
+              console.log("New Scurity_agent_request Added for User", userId, ":", mergedData);
+  
+              // You can add this data to your state if needed
+              // For example, if you have a state variable like 'secSecReq' to store notifications:
+              secSecReq((prev) => [...prev, mergedData]);
+  
+              // You can also display a notification or take other actions here
+              // showStyledToast("info", "Scurity_agent_request alert", `${mergedData.Name} has a new Scurity_agent_request`, () => {
+              //   navigate(`/Scurity_agent_requestSingleUser/${userId}/${dataSnapshot.key}`);
+              // });
+            }
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Error listening to new Scurity_agent_requests:', error);
+    }
+  }
+  
+  
+
 
 
 
@@ -438,13 +505,14 @@ export default function App() {
 
   useEffect(() => {
     if (!loggedIn) {
-      return;
+      return () => null;
     }
-    // listenToNewWhistleBlowData()
-    // listenToNewWellBeingData()
-    // listenToNewSOSAlerts()
-    // listenToNewPoliceAlerts();
+    listenToNewWhistleBlowData()
+    listenToNewWellBeingData()
+    listenToNewSOSAlerts()
+    listenToNewPoliceAlerts();
     listenToNewVirtualHomeCheckData();
+    listenToNewScurity_agent_requestsData()
   }, [loggedIn]);
 
   // Setting page scroll to 0 when changing the route
@@ -545,7 +613,7 @@ export default function App() {
         {!loggedIn ? (
           <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
         ) : (
-          <Route path="*" element={<Navigate to="/dashbord" />} />
+          <Route path="*" element={<Navigate to="/" />} />
         )}
 
         {/* <Route path="*" element={<Navigate to="/authentication/sign-in" />} /> */}
@@ -560,7 +628,7 @@ export default function App() {
             isOpen={true}
             onClose={() => closeModal(index)}
             notification={notification}
-            type = {"Virtual Home Check "}
+            type={"Virtual Home Check "}
           />
         </div >
       ))}
@@ -572,7 +640,20 @@ export default function App() {
             isOpen={true}
             onClose={() => closeVirtualModal(index)}
             notification={notification}
-            type = {"Virtual travel Guard "}
+            type={"Virtual travel Guard "}
+          />
+        </div >
+      ))}
+
+      {secReq.map((notification, index) => (
+        <div className="position-relative">
+          <SecReqNoti
+            index={index}
+            key={index}
+            isOpen={true}
+            onClose={() => closeSecModal(index)}
+            notification={notification}
+            type={"Virtual travel Guard "}
           />
         </div >
       ))}

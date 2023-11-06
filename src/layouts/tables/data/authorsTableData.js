@@ -55,9 +55,13 @@ export default function data() {
       { Header: "Image", accessor: "Image", width: "10%", align: "left" },
       // { Header: "Email", accessor: "Email", align: "left" },
       { Header: "Phone", accessor: "Phone", align: "center" },
+      { Header: "plan", accessor: "plan", align: "center" },
+      { Header: "Plan Action", accessor: "planAction", align: "center" },
+      { Header: "Subscriptoin Time", accessor: "subTime", align: "center" },
       { Header: "Gender", accessor: "Gender", align: "center" },
       { Header: "manage user", accessor: "Suspend", align: "center" },
       { Header: "action", accessor: "action", align: "center" },
+      { Header: "Change Plan", accessor: "changePlan", align: "center" },
     ],
 
     rows: [

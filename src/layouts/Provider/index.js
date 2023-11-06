@@ -93,52 +93,55 @@ function ProviderManagment() {
       snapShot.forEach((doc) => {
         index = index + 1;
         const item = doc.val();
-        console.log(item);
-        const key = doc.key;
-        console.log("ket", key);
-        const rowItem = {
-          SR: index,
-          Name: item.workerName,
-          Type: item.workerType,
-          Image: (
-            <img
-            onClick={() => handleImageClick(item.workerImage)}
-            
-              src={item.workerImage}
-              alt="react logo"
-              style={{ backgroundSize: 'cover',width: "50px", height: "50px", borderRadius: "50%" }}
-            />
-          ),
-          Phone: item.workerPhoneNumber,
-          Status: item.verified == true ? "Accepted" : `pending`,
-          verify:
-            item.verified == false ? (
-              <button
-                type="button"
-                key={item.workerPhoneNumber}
-                onClick={(e) => {
-                  acceptWorker(item, key);
-                }}
-                class="btn btn-sm text-light btn-secondary"
-              >
-                Accept
-              </button>
-            ) : (
-              <button
-                type="button"
-                key={item.workerPhoneNumber}
-                onClick={(e) => {
-                  acceptWorker(item, key);
-                }}
-                class="btn btn-sm text-light btn-success"
-              >
-                verified
-              </button>
+        // console.log(item.workerType);
+
+        if(item.workerType == 'Towing Services'){
+          const key = doc.key;
+          console.log("ket", key);
+          const rowItem = {
+            SR: index,
+            Name: item.workerName,
+            Type: item.workerType,
+            Image: (
+              <img
+              onClick={() => handleImageClick(item.workerImage)}
+              
+                src={item.workerImage}
+                alt="react logo"
+                style={{ backgroundSize: 'cover',width: "50px", height: "50px", borderRadius: "50%" }}
+              />
             ),
-          //   employed: item.userImage,
-          action: <Link to={`/locate/${item.key}`}> Track </Link>,
-        };
-        setRows((curr) => [...curr, rowItem]);
+            Phone: item.workerPhoneNumber,
+            Status: item.verified == true ? "Accepted" : `pending`,
+            verify:
+              item.verified == false ? (
+                <button
+                  type="button"
+                  key={item.workerPhoneNumber}
+                  onClick={(e) => {
+                    acceptWorker(item, key);
+                  }}
+                  class="btn btn-sm text-light btn-secondary"
+                >
+                  Accept
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  key={item.workerPhoneNumber}
+                  onClick={(e) => {
+                    acceptWorker(item, key);
+                  }}
+                  class="btn btn-sm text-light btn-success"
+                >
+                  verified
+                </button>
+              ),
+            //   employed: item.userImage,
+            action: <Link to={`/locate/${item.key}`}> Track </Link>,
+          };
+          setRows((curr) => [...curr, rowItem]);
+        }
       });
       // console.log("snapshot" , snapShot);
     });

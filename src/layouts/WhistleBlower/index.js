@@ -1,18 +1,30 @@
 // @mui material components
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid"
 import Card from "@mui/material/Card";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 
-
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Link, useNavigate } from "react-router-dom";
+import HomeIcon from '@mui/icons-material/Home';
 // import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
+import WarningIcon from '@mui/icons-material/Warning';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import PlaceIcon from '@mui/icons-material/Place';
+
+import ErrorIcon from '@mui/icons-material/Error';
+
+import PersonIcon from '@mui/icons-material/Person'; // Import the user icon
+
+
+
+import DriveEtaIcon from '@mui/icons-material/DriveEta'; // Import the car icon
+
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -32,9 +44,10 @@ import {
   setTransparentSidenav,
   setWhiteSidenav,
 } from "context";
-import { Box, ListItem, Modal } from "@mui/material";
+import { Box, Button, ListItem, Modal } from "@mui/material";
 import { object } from "prop-types";
 import { listenForNewSosWithNotification } from "components/services/AllNotificationListener";
+import SosSection from "components/SosSection";
 
 
 // import projectsTableData from "layouts/tables/data/projectsTableData";
@@ -44,7 +57,11 @@ function WhistleBlower() {
   const navigate = useNavigate();
   const [controller, dispatch] = useMaterialUIController();
 
+  const [search, setSearch] = useState('');
+
   const [processedSosIds, setProcessedSosIds] = useState([]);
+
+  const [counts, setCounts] = useState({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [onClickImageData, setOnClickImageData] = useState("");
@@ -52,6 +69,8 @@ function WhistleBlower() {
     setIsModalOpen(true);
     setOnClickImageData(url);
   };
+
+  const [searchTxt , setSearchText] = useState('');
 
 
 
@@ -65,74 +84,6 @@ function WhistleBlower() {
     { Header: "Time Stamp", accessor: "time", align: "center" },
     { Header: "Location", accessor: "Location", align: "center" },
   ];
-
-
-  const getSos = () => {
-    const db = getDatabase();
-    const usersRef = ref(db, 'users');
-
-    get(usersRef)
-      .then((snapshot) => {
-        setRows([]);
-        if (snapshot.exists()) {
-          const usersData = snapshot.val();
-          const usersWithSOS = [];
-          let i = 0;
-
-          // Loop over the keys of the snapshot
-          for (const userId in usersData) {
-            if (Object.hasOwnProperty.call(usersData, userId)) {
-              const user = usersData[userId];
-              const { userImage, latitude, longitude } = user;
-
-              // Check if the user has an SOS collection
-              if (user.SOS) {
-                const sosData = user.SOS;
-
-                // Loop over the keys of the SOS data object in reverse order
-                const sosIds = Object.keys(sosData).reverse(); // Get the keys in reverse order
-                for (const sosId of sosIds) {
-                  const sosItem = sosData[sosId];
-                  i++;
-
-                  // Create an SOS object and add it to the array
-                  const sosObject = {
-                    sr: i,
-                    ker: i,
-                    time: sosItem.Date,
-           
-                    userName: user.userName, // Retrieve userName from user object
-                    userImage: (
-                      <img
-                        onClick={() => handleImageClick(userImage)}
-                        src={userImage}
-                        alt="react logo"
-                        style={{ width: "50px", height: "50px", borderRadius: "50%" }}
-                      />
-                    ),
-                    latitude,
-                    longitude,
-                    Location: <Link to={`/locate/${userId}`}> Track </Link>,
-                    sos: sosItem,
-                  };
-
-                  usersWithSOS.push(sosObject);
-                }
-              }
-            }
-          }
-
-          // Do something with usersWithSOS array (if needed)
-          setRows(usersWithSOS.reverse());
-          console.log(usersWithSOS);
-        } else {
-          console.log('No users found.');
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching users:', error);
-      });
-  };
 
   const getWhistleBlow = useCallback(() => {
     const db = getDatabase();
@@ -209,7 +160,7 @@ function WhistleBlower() {
                     Type: (<button className={` btn btn-sm ${randomClass} `}>{whistleBlowItem.data.Type}</button>),
                     time: whistleBlowItem.data.Date,
                     userName: user.userName,
-                    Detail:whistleBlowItem.data.Report,
+                    Detail: whistleBlowItem.data.Report,
                     userImage: (
                       <img
                         onClick={() => handleImageClick(userImage)}
@@ -236,6 +187,30 @@ function WhistleBlower() {
             return dateB - dateA;
           });
 
+          const typeInfo = {}; // Object to store count and percentage by Type
+
+          for (const whistleBlowObject of usersWithWhistleBlow) {
+            const type = whistleBlowObject.Type.props.children; // Assuming Type is a string
+            if (typeInfo[type]) {
+              typeInfo[type].count++;
+            } else {
+              typeInfo[type] = { count: 1, percentage: 0 };
+            }
+          }
+
+          // Calculate percentages
+          const totalCount = usersWithWhistleBlow.length;
+          for (const type in typeInfo) {
+            const count = typeInfo[type].count;
+            const percentage = (count / totalCount) * 100;
+            typeInfo[type].percentage = Math.floor(percentage);
+          }
+
+          setCounts(typeInfo)
+
+
+          // Do something with typeInfo object (contains count and percentage by Type)
+          console.log(typeInfo);
 
 
           // Do something with usersWithWhistleBlow array (if needed)
@@ -248,37 +223,136 @@ function WhistleBlower() {
       .catch((error) => {
         console.error('Error fetching users:', error);
       });
-  },[]);
+  }, []);
 
 
 
 
-  // const listenForNewSosWithNotification = () => {
-  //   const db = getDatabase();
-  //   const usersRef = ref(db, 'users');
 
-  //   onChildChanged(usersRef, (snapshot) => {
-  //     const user = snapshot.val();
-  //     const { userName } = user;
+  useEffect(() => {
+    const db = getDatabase();
+    const usersRef = ref(db, 'users');
 
-  //     if (user.SOS) {
-  //       const sosData = user.SOS;
+    get(usersRef)
+      .then((snapshot) => {
+        setRows([]);
+        if (snapshot.exists()) {
+          const usersData = snapshot.val();
+          const usersWithWhistleBlow = [];
 
-  //       for (const sosId in sosData) {
-  //         const sosItem = sosData[sosId];
+          // Loop over the keys of the snapshot
+          for (const userId in usersData) {
+            if (Object.hasOwnProperty.call(usersData, userId)) {
+              const user = usersData[userId];
+              const { userImage, latitude, longitude } = user;
 
-  //         if (!sosItem.isRead) {
-  //           // Show a notification for the new SOS
-  //           toast.warning(`${userName} Needs Emergency Help`, { autoClose: 3000 });
+              // Check if the user has a Whistle_Blow collection
+              if (user.Whistle_Blow) {
+                const whistleBlowData = user.Whistle_Blow;
 
-  //           // Update the isRead property to true
-  //           const sosRef = child(ref(db, `users/${user.uid}/SOS`), sosId);
-  //           // update(sosRef, { isRead: true });
-  //         }
-  //       }
-  //     }
-  //   });
-  // };
+                // Create an array to store the whistleBlowItems
+                const whistleBlowItems = [];
+
+                // Loop over the keys of the Whistle_Blow data object
+                for (const whistleBlowId in whistleBlowData) {
+                  if (Object.hasOwnProperty.call(whistleBlowData, whistleBlowId)) {
+                    const whistleBlowItem = whistleBlowData[whistleBlowId];
+                    whistleBlowItems.push({
+                      id: whistleBlowId,
+                      data: whistleBlowItem
+                    });
+                  }
+                }
+
+                // Sort whistleBlowItems array based on date (assuming 'Date' field exists in whistleBlowItem)
+                // whistleBlowItems.sort((a, b) => {
+                //   const partsA = a.data.Date.split(' - ');
+                //   const partsB = b.data.Date.split(' - ');
+
+                //   const timeA = partsA[0];
+                //   const dateA = partsA[1];
+
+                //   const timeB = partsB[0];
+                //   const dateB = partsB[1];
+
+                //   const dateTimeA = new Date(dateA + ' ' + timeA);
+                //   const dateTimeB = new Date(dateB + ' ' + timeB);
+
+                //   return dateTimeB - dateTimeA;
+                // });
+                const className = [
+                  "btn-danger",
+                  "btn-warning",
+                  "btn-info",
+                  "btn-secondary",
+                ];
+
+                // Loop through sorted whistleBlowItems
+                let i = 0;
+                for (const whistleBlowItem of whistleBlowItems) {
+                  i++;
+
+                  const randomIndex = Math.floor(Math.random() * className.length);
+
+                  // Get the randomly selected class name
+                  const randomClass = className[randomIndex];
+
+                  // Create a Whistle_Blow object and add it to the array
+                  const whistleBlowObject = {
+                    sr: i,
+                    ker: i,
+                    Type: (<button className={` btn btn-sm ${randomClass} `}>{whistleBlowItem.data.Type}</button>),
+                    time: whistleBlowItem.data.Date,
+                    userName: user.userName,
+                    Detail: whistleBlowItem.data.Report,
+                    userImage: (
+                      <img
+                        onClick={() => handleImageClick(userImage)}
+                        src={userImage}
+                        alt="react logo"
+                        style={{ width: '50px', height: '50px', borderRadius: '50%' }}
+                      />
+                    ),
+                    latitude,
+                    longitude,
+                    Location: <Link to={`/locate/${userId}`}> Track </Link>,
+                    whistleBlow: whistleBlowItem.data,
+                  };
+
+                  usersWithWhistleBlow.push(whistleBlowObject);
+                }
+              }
+            }
+          }
+
+          usersWithWhistleBlow.sort((a, b) => {
+            const dateA = new Date(a.time.split(' - ')[1] + ' ' + a.time.split(' - ')[0]);
+            const dateB = new Date(b.time.split(' - ')[1] + ' ' + b.time.split(' - ')[0]);
+            return dateB - dateA;
+          });
+
+          if (search !== 'All') {
+            const filteredUsersWithWhistleBlow = usersWithWhistleBlow.filter((item) =>
+              item.whistleBlow.Type === search
+            );
+            setRows(filteredUsersWithWhistleBlow);
+          } else {
+            setRows(usersWithWhistleBlow)
+          }
+
+
+
+          // Do something with usersWithWhistleBlow array (if needed)
+          console.log(usersWithWhistleBlow);
+        } else {
+          console.log('No users found.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching users:', error);
+      });
+
+  }, [search])
 
 
 
@@ -362,32 +436,7 @@ function WhistleBlower() {
       // console.log("snapshot" , snapShot);
     });
     return;
-    const querySnapshot = await getDocs(collection(db, "Users"));
-    querySnapshot.forEach((doc) => {
-      console.log("Users data ", doc);
-    });
-    const arr = [];
-    querySnapshot.forEach((doc) => {
-      const item = doc.data();
-      console.log("user data >>>", item);
-      arr.push({
-        Name: item.name,
-        Email: item.email,
-        Image: (
-          <img
-            src={item.userImage}
-            alt="react logo"
-            style={{ width: "50px", height: "50px", borderRadius: "50%" }}
-          />
-        ),
-        Phone: item.phoneNumber,
-        Gender: item.gender,
-        status: item.userEmail,
-        employed: item.userImage,
-        action: <Link to={`/locate/${item.key}`}> Track </Link>,
-      });
-    });
-    setRows(arr);
+  
   };
   const naivgate = useNavigate();
   let user = localStorage.getItem("user");
@@ -401,37 +450,136 @@ function WhistleBlower() {
     getWhistleBlow()
   }, []);
 
-  // const rows = [
-  //   {
-  //     Name: "test ",
-  //     function: "test ",
-  //     status: "test ",
-  //     employed: "test ",
-  //     action: "test ",
-  //   },
-  //   {
-  //     Name: "test ",
-  //     function: "test ",
-  //     status: "test ",
-  //     employed: "test ",
-  //     action: "test ",
-  //   },
-  //   {
-  //     Name: "test ",
-  //     function: "test ",
-  //     status: "test ",
-  //     employed: "test ",
-  //     action: "test ",
-  //   },
-  // ];
-  // const { columns: pColumns, rows: pRows } = projectsTableData();
+  const handleSearchChange = (event) => {
+    setSearchText(event.target.value);
+  };
+
+
+  useEffect(() => {
+
+    if (searchTxt == '') {
+      getWhistleBlow()
+
+    }
+
+
+    if (searchTxt) {
+      const filteredRows = rows.filter((row) => {
+        console.log("rows " ,row )
+        const { userName  } = row; // Provide default values for destructuring
+        const searchLowerCase = searchTxt.toLowerCase();
+        return (
+          userName.toLowerCase().startsWith(searchLowerCase) 
+        );
+      });
+
+      setRows(filteredRows)
+    }
+
+  }, [searchTxt])
+
+
+
 
   return (
     <DashboardLayout>
-      <DashboardNavbar />
+   <DashboardNavbar value={searchTxt} onChange={handleSearchChange} />
       <ToastContainer />
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
+          <div className="container row ms-4 mb-1">
+            <div className="col-sm col-lg col-xl mt-2">
+              <SosSection
+                OnPress={() => setSearch('Snatched Car')}
+                count={counts["Snatched Car"] ? counts["Snatched Car"].count : 0}
+                per={counts["Snatched Car"] ? counts["Snatched Car"].percentage : 0}
+                color="#e65555"
+                icon={<DriveEtaIcon style={{ color: "white" }}
+                />}
+                title="Snatched Car"
+              />
+            </div>
+
+            <div className="col-sm col-lg col-xl mt-2 ">
+              <SosSection
+                OnPress={() => setSearch('Report kidnapping')}
+                count={counts["Report kidnapping"] ? counts["Report kidnapping"].count : 0}
+                per={counts["Report kidnapping"] ? counts["Report kidnapping"].percentage : 0}
+                color="#279858"
+                icon={<PersonIcon style={{ color: "white" }}
+                />}
+                title="Kidnapping"
+              />
+            </div>
+
+            <div className="col-sm col-lg col-xl mt-2 ">
+              <SosSection
+                OnPress={() => setSearch('Search a house')}
+                count={counts["Search a house"] ? counts["Search a house"].count : 0}
+                per={counts["Search a house"] ? counts["Search a house"].percentage : 0}
+                color="#9D56E0"
+                icon={<HomeIcon style={{ color: "white" }}
+                />}
+                title="Search a House"
+              />
+            </div>
+
+            <div className="col-sm col-lg col-xl mt-2 ">
+              <SosSection
+                OnPress={() => setSearch('Stop ritual killing')}
+                count={counts["Stop ritual killing"] ? counts["Stop ritual killing"].count : 0}
+                per={counts["Stop ritual killing"] ? counts["Stop ritual killing"].percentage : 0}
+                color="#9D56E0"
+                icon={<ErrorIcon style={{ color: "white" }}
+                />}
+                title=" Ritual Killing"
+              />
+            </div>
+
+            <div className="col-sm col-lg col-xl mt-2 ">
+              <SosSection
+                OnPress={() => setSearch('Report a criminal in your area')}
+                count={counts["Report a criminal in your area"] ? counts["Report a criminal in your area"].count : 0}
+                per={counts["Report a criminal in your area"] ? counts["Report a criminal in your area"].percentage : 0}
+                color="#B9472C"
+                icon={<PlaceIcon style={{ color: "white" }}
+                />}
+                title="Criminal In Area"
+              />
+            </div>
+            <div className="col-sm col-lg col-xl mt-2 ">
+              <SosSection
+                OnPress={() => setSearch('Others')}
+                count={counts["Others"] ? counts["Others"].count : 0}
+                per={counts["Others"] ? counts["Others"].percentage : 0}
+                color="#3583ED"
+                icon={<HelpOutlineIcon style={{ color: "white" }}
+                />}
+                title="Others"
+              />
+            </div>
+            <div className="col-sm col-lg col-xl mt-2 ">
+              <SosSection
+                OnPress={() => setSearch('All')}
+                count={rows ? rows.length : 0}
+                color="#CA1DAE"
+                icon={<WarningIcon style={{ color: "white" }}
+                />}
+                title="All"
+              />
+            </div>
+            <div className="col-sm col-lg col-xl mt-2 ">
+              {/* <SosSection
+                OnPress={() => setSearch('All')}
+                count={rows ? rows.length : 0}
+                color="#CA1DAE"
+                icon={<WarningIcon style={{ color: "white" }}
+                />}
+                title="All"
+              /> */}
+            </div>
+
+          </div>
           <Grid item xs={12}>
             <Card>
               <MDBox
@@ -445,7 +593,9 @@ function WhistleBlower() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  User
+                  
+
+                  Dashboard
                 </MDTypography>
               </MDBox>
               <MDBox pt={3}>

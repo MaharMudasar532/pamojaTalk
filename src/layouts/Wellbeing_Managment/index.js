@@ -29,10 +29,17 @@ import {
   setTransparentSidenav,
   setWhiteSidenav,
 } from "context";
-import { Box, ListItem, Modal } from "@mui/material";
+import { Box, Button, ListItem, Modal } from "@mui/material";
 import { object } from "prop-types";
 import { listenForNewSosWithNotification } from "components/services/AllNotificationListener";
 import { showStyledToast } from "components/toastAlert";
+
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import axios from "axios";
+import { VIEWPORT } from "stylis";
+
+
+
 
 
 // import projectsTableData from "layouts/tables/data/projectsTableData";
@@ -52,6 +59,16 @@ function ProviderManagment() {
     setOnClickImageData(url);
   };
 
+
+  const [openWellBeingMod, setWellBeingMod] = useState(false);
+
+  const [modData, setModData] = useState([]);
+
+
+  const closeModal = useCallback((index) => {
+    setWellBeingMod(false)
+  }, [openWellBeingMod])
+
   const { loggedIn } = controller;
 
   useEffect(() => {
@@ -59,104 +76,30 @@ function ProviderManagment() {
       navigate("/authentication/sign-in");
     }
 
-  },[])
+  }, [])
 
 
 
   //   const { columns } = authorsTableData();
   const columns = [
-    { Header: "SR", accessor: "sr", align: "left" },
-    // { Header: "Type", accessor: "Type", align: "left" },
-    { Header: "Sender", accessor: "userName", align: "left" },
-    { Header: "Image", accessor: "userImage", align: "left" },
-    { Header: "Origin ", accessor: "origin", align: "left" },
-    { Header: "destination ", accessor: "dest", align: "left" },
-
-    { Header: "Arrival Date", accessor: "Date", align: "left" },
-    { Header: "Vehicle Number", accessor: "No", align: "left" },
-    { Header: "Partner", accessor: "partner", align: "left" },
+    { Header: "SR", accessor: "sr", align: "center" },
+    // { Header: "Type", accessor: "Type", align: "center" },
+    { Header: "Selfie/Vehicle", accessor: "userImage", align: "center" },
+    { Header: "Origin ", accessor: "origin", align: "center" },
+    { Header: "destination ", accessor: "dest", align: "center" },
+    { Header: "Transport Mode ", accessor: "transMode", align: "center" },
+    { Header: "Partner Type", accessor: "partner", align: "center" },
+    // { Header: "", accessor: "selVeh", align: "center" },
+    { Header: "Partner Name", accessor: "userName", align: "center" },
+    { Header: "Pertner Contact", accessor: "partnerCont", align: "center" },
+    { Header: "Arrival Date", accessor: "Date", align: "center" },
     { Header: "Arrival Time", accessor: "time", align: "center" },
+    { Header: "Vehicle Number", accessor: "No", align: "center" },
+    { Header: "View", accessor: "Action", align: "center" },
     { Header: "map", accessor: "Location", align: "center" },
+
   ];
 
-  // useEffect(()=>{
-  //   showStyledToast(
-  //     "info",
-  //       `WellBeing Check alert`,
-  //     ` asking for Wellbeing Check`
-  //   )
-
-  // },[])
-
-
-
-
-
-  const getSos = () => {
-    const db = getDatabase();
-    const usersRef = ref(db, 'users');
-
-    get(usersRef)
-      .then((snapshot) => {
-        setRows([]);
-        if (snapshot.exists()) {
-          const usersData = snapshot.val();
-          const usersWithSOS = [];
-          let i = 0;
-
-          // Loop over the keys of the snapshot
-          for (const userId in usersData) {
-            if (Object.hasOwnProperty.call(usersData, userId)) {
-              const user = usersData[userId];
-              const { userImage, latitude, longitude } = user;
-
-              // Check if the user has an SOS collection
-              if (user.SOS) {
-                const sosData = user.SOS;
-
-                // Loop over the keys of the SOS data object in reverse order
-                const sosIds = Object.keys(sosData).reverse(); // Get the keys in reverse order
-                for (const sosId of sosIds) {
-                  const sosItem = sosData[sosId];
-                  i++;
-
-                  // Create an SOS object and add it to the array
-                  const sosObject = {
-                    sr: i,
-                    ker: i,
-                    time: sosItem.Date,
-                    userName: user.userName, // Retrieve userName from user object
-                    userImage: (
-                      <img
-                        onClick={() => handleImageClick(userImage)}
-                        src={userImage}
-                        alt="react logo"
-                        style={{ width: "50px", height: "50px", borderRadius: "50%" }}
-                      />
-                    ),
-                    latitude,
-                    longitude,
-                    Location: <Link to={`/locate/${userId}`}> Track </Link>,
-                    sos: sosItem,
-                  };
-
-                  usersWithSOS.push(sosObject);
-                }
-              }
-            }
-          }
-
-          // Do something with usersWithSOS array (if needed)
-          setRows(usersWithSOS.reverse());
-          console.log(usersWithSOS);
-        } else {
-          console.log('No users found.');
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching users:', error);
-      });
-  };
 
   const getWellBeingServices = useCallback(() => {
     const db = getDatabase();
@@ -208,10 +151,31 @@ function ProviderManagment() {
                       <button className={` btn btn-sm`}>{wellBeingServiceItem.data.Type}</button>
                     ),
                     Date: wellBeingServiceItem.data.ArrivalDate,
-                    origin:wellBeingServiceItem.data.currentLocTxt,
-                    dest:wellBeingServiceItem.data.destLocTxt,
+                    selVeh: (
+                      <>
+                        <Button
+                        onClick={()=>{
+                            handleImageClick(
+                              wellBeingServiceItem.data.WellBeingTripPic
+                              )
+                        }}
+                        
+                        style={{ padding: 0 }} className="btn btn-priamry btn-sm p-0 m-0 bg-primary text-light btn-sm  ">
+                          Vehicle
+                        </Button>
+                        <Button style={{ padding: 0 }} className=" ms-1 btn btn-secondary btn-sm p-0 m-0 bg-secondary  text-light btn-sm  ">
+                          Selfien
+                        </Button>
+                      </>
+
+                    ),
+                    partnerCont: wellBeingServiceItem.data.PhoneNumber,
+                    origin: wellBeingServiceItem.data.currentLocTxt,
+                    dest: wellBeingServiceItem.data.destLocTxt,
                     time: wellBeingServiceItem.data.ArrivalTime,
                     userName: wellBeingServiceItem.data.Name,
+                    transMode: wellBeingServiceItem.data.transportMode !== "" ?
+                      wellBeingServiceItem.data.transportMode : " Own Transport",
                     No: wellBeingServiceItem.data.VehicleNumber,
                     partner: wellBeingServiceItem.data.PartenerType,
                     userImage: (
@@ -222,10 +186,22 @@ function ProviderManagment() {
                         style={{ width: '50px', height: '50px', borderRadius: '50%' }}
                       />
                     ),
+                    Action: (
+                      <Button
+                        onClick={() => {
+                          console.log("wellbeing", wellBeingServiceItem.data)
+                          setModData(wellBeingServiceItem.data);
+                          setWellBeingMod(true);
+                        }}
+
+                        style={{ padding: 4, backgroundColor: "#f2f2f2" }}>
+                        <VisibilityIcon />
+                      </Button>),
                     latitude,
                     longitude,
                     Location: <Link to={`/locate/${userId}`}> Track </Link>,
                     wellBeingService: wellBeingServiceItem.data,
+
                   };
                   usersWithWellBeingServices.push(wellBeingServicesDataObject);
                 }
@@ -250,53 +226,6 @@ function ProviderManagment() {
         console.error('Error fetching users:', error);
       });
   }, []);
-
-
-
-
-
-
-
-  // Call the function to start listening
-  // useEffect(() => {
-  //   listenToNewWellBeingData();
-  // }, []);
-
-
-
-
-
-
-
-
-
-  // const listenForNewSosWithNotification = () => {
-  //   const db = getDatabase();
-  //   const usersRef = ref(db, 'users');
-
-  //   onChildChanged(usersRef, (snapshot) => {
-  //     const user = snapshot.val();
-  //     const { userName } = user;
-
-  //     if (user.SOS) {
-  //       const sosData = user.SOS;
-
-  //       for (const sosId in sosData) {
-  //         const sosItem = sosData[sosId];
-
-  //         if (!sosItem.isRead) {
-  //           // Show a notification for the new SOS
-  //           toast.warning(`${userName} Needs Emergency Help`, { autoClose: 3000 });
-
-  //           // Update the isRead property to true
-  //           const sosRef = child(ref(db, `users/${user.uid}/SOS`), sosId);
-  //           // update(sosRef, { isRead: true });
-  //         }
-  //       }
-  //     }
-  //   });
-  // };
-
 
 
 
@@ -445,7 +374,7 @@ function ProviderManagment() {
 
   return (
     <DashboardLayout>
-      <DashboardNavbar />
+      <DashboardNavbar /> 
       <ToastContainer />
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
@@ -462,7 +391,7 @@ function ProviderManagment() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  User
+                  Virtual Travel Guard
                 </MDTypography>
               </MDBox>
               <MDBox pt={3}>
@@ -482,8 +411,8 @@ function ProviderManagment() {
               aria-labelledby="modal-modal-title"
               aria-describedby="modal-modal-description"
             >
-              <Box
-                className="col-md-9 col-sm-9 col-lg-6"
+               <Box
+                className="col-2"
                 style={{
                   backgroundColor: "white",
                   borderRadius: 20,
@@ -491,17 +420,108 @@ function ProviderManagment() {
                   marginTop: "10%",
                   marginLeft: "auto",
                   marginRight: "auto",
-                  height: 450,
                 }}
               >
-                <img
-                  src={onClickImageData}
-                  alt="post image error"
-                  id={"9"}
-                  style={{ width: "100%", height: "100%", borderRadius: 20 }}
-                />
+                <div className="ms-auto" style={{ marginLeft: 'auto' }}>
+                  <img
+                    src={onClickImageData}
+                    alt="post image error"
+                    height={300}
+                    width={300}
+                    id={"9"}
+                    style={{ backgroundSize: "cover", borderRadius: 20 }}
+                  />
+                </div>
               </Box>
             </Modal>
+            <Modal
+              open={openWellBeingMod}
+              // className="position-relative"
+              style={{ borderRadius: 5, }}
+              onClose={() => setWellBeingMod(false)}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box
+                className="col-md-9 col-sm-9 col-lg-6 pb-4"
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: 20,
+                  alignSelf: "center",
+                  marginTop: "10%",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  height: 320,
+                }}
+              >
+                <div className='row'>
+                  <div className='col-5 ms-4 mt-4'>
+                    <p style={{ fontSize: 14 }}>
+                      WellBeingCheck Type : Vitual Travel Guards <br />
+                      Name  :   {modData.Name}
+                      <br />
+                      {modData.currentLocTxt
+                        ?
+
+                        " Current Location :" + modData.currentLocTxt
+
+                        : null
+                      }
+                      {modData.destLocTxt ?
+                        "  Destination:" + modData.destLocTxt[0]
+                        : null
+                      }
+                      {modData.transportMode ?
+                        "  Tranport Mode :" + modData.transportMode
+                        : "Tranport Mode : Own Transport"
+                      }
+
+                      <br />
+                      Date  :   {modData.ArrivalDate || modData.TripDate}
+                      <br />
+                      Time : {modData.ArrivalTime || modData.TripTime}
+                      <br />
+                      partner Type : {modData.PartenerType}
+                      <br />
+                      partner Name  : {modData.Name}
+                      <br />
+                      partner Phone Number  : {modData.PhoneNumber}
+                      <br />
+                      Vehicle Number  : {modData.VehicleNumber
+                      }
+                      <br />
+                      {
+                        modData.currentLocTxt ?
+                          "Arrival Station : " + modData.currentLocTxt
+                          : null
+                      }
+                      <br />
+                      {
+                        modData.destLocTxt ?
+                          "Destination : " + modData.destLocTxt[0]
+                          : null
+                      }
+                    </p>
+
+                  </div>
+
+                  <div className='col mt-5 ms-4'>
+                    {
+                      modData.WellBeingTripPic ?
+                        <img
+                          src={modData.WellBeingTripPic}
+                          style={{ backgroundSize: "cover", borderRadius: 10 }}
+                          alt="no image attaiched by user"
+                          height={250} width={300}
+                        />
+                        : null
+                    }
+
+                  </div>
+                </div>
+
+              </Box>
+            </Modal >
           </Grid>
         </Grid>
       </MDBox>

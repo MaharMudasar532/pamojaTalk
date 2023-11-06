@@ -47,9 +47,39 @@ import WhistleBlowSingleUser from "layouts/WhistleBlowSingleUser";
 import VirtualHomeCheck from "layouts/VirtualHomeCheck";
 import NYSC from "layouts/NYSC";
 import AmbulamceProviders from "layouts/AmbulanceProvider";
+import UserDashboard from "layouts/UsersDashbord";
+import Dashboard from "layouts/dashboard";
+import SecurityArms from "layouts/SecurityArms";
+import ActiveSub from "layouts/ActiveSub";
+import NotActiveSub from "layouts/ActiveNotSub";
+import SecurityArmsReq from "layouts/SecurityArmsReq/SecurityArmsRequest";
 
 
 var routes = [
+  {
+    type: "",
+    name: "ActiveSub",
+    key: "ActiveSub",
+    icon: <Icon fontSize="small">Active</Icon>,
+    route: "/ActiveSub/",
+    component: <ActiveSub />,
+  },
+  {
+    type: "",
+    name: "Security Arms Request",
+    key: "SecArmsReq",
+    icon: <Icon fontSize="small">Request</Icon>,
+    route: "/SecurityArmsRequest/",
+    component: <SecurityArmsReq />,
+  },
+  {
+    type: "",
+    name: "nonActiveSub",
+    key: "nonActiveSub",
+    icon: <Icon fontSize="small">Not Active </Icon>,
+    route: "/nonActiveSub/",
+    component: <NotActiveSub />,
+  },
   {
     type: "",
     name: "UserManagment",
@@ -114,14 +144,14 @@ var routes = [
     route: "/notifications",
     component: <Notifications />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Police Alerts",
-  //   key: "dashboard2",
-  //   icon: <Icon fontSize="small">notifications</Icon>,
-  //   route: "/policeAlerts",
-  //   component: <PoliceAlerts />,
-  // },
+  {
+    type: "",
+    name: "",
+    key: "UserDashboard",
+    icon: <Icon fontSize="small">notifications</Icon>,
+    route: "/UserDashboard",
+    component: <Dashboard />,
+  },
   {
     type: "",
     name: "vehicle",
@@ -129,6 +159,22 @@ var routes = [
     icon: <Icon fontSize="small">VriveEta</Icon>,
     route: "/vehicle/",
     component: <RegisteredVehicle />,
+  },
+  {
+    type: "",
+    name: "subs",
+    key: "subs",
+    icon: <Icon fontSize="small">Subcription</Icon>,
+    route: "/subs/",
+    component: <Subcription />,
+  },
+  {
+    type: "",
+    name: "SecurityArms",
+    key: "SecurityArms",
+    icon: <Icon fontSize="small">Subcription</Icon>,
+    route: "/SecurityArms/",
+    component: <SecurityArms />,
   },
   // {
   //   type: "collapse",
@@ -194,7 +240,7 @@ var routes = [
     key: "WellBeingSingleUser",
     icon: <Icon fontSize="small">wellBeing </Icon>,
     route: "/WellBeingSingleUser/:userId/:wellBeingCheckId",
-    component: <WellBeingSingleUser    />,
+    component: <WellBeingSingleUser />,
   },
   {
     type: "",
@@ -202,7 +248,7 @@ var routes = [
     key: "WhistleBlowSingleUser",
     icon: <Icon fontSize="small">WhistleBlowSingleUser </Icon>,
     route: "/WhistleBlowSingleUser/:userId/:whistleBlowId",
-    component: <WhistleBlowSingleUser    />,
+    component: <WhistleBlowSingleUser />,
   },
 
 

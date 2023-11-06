@@ -94,9 +94,8 @@ function AmbulamceProviders() {
         index = index + 1;
         const item = doc.val();
         // console.log(item);
-        if(!item.workerType == 'Ambulance Services'){
-            return;
-        }
+        if(item.workerType == 'Ambulance Services'){
+   
         const key = doc.key;
         console.log("ket", key);
         const rowItem = {
@@ -142,6 +141,7 @@ function AmbulamceProviders() {
           action: <Link to={`/locate/${item.key}`}> Track </Link>,
         };
         setRows((curr) => [...curr, rowItem]);
+      }
       });
       // console.log("snapshot" , snapShot);
     });

@@ -11,6 +11,7 @@ import Switch from "@mui/material/Switch";
 import Grid from "@mui/material/Grid";
 import MuiLink from "@mui/material/Link";
 
+
 // @mui icons
 import FacebookIcon from "@mui/icons-material/Facebook";
 import GitHubIcon from "@mui/icons-material/GitHub";
@@ -30,7 +31,7 @@ import { useNavigate } from "react-router-dom";
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebase";
-import { getDatabase, ref, onValue, set, push } from "firebase/database";
+import { getDatabase, ref, onValue, set, push, get } from "firebase/database";
 import { setLoggedIn, useMaterialUIController } from "context";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -46,71 +47,44 @@ function Basic() {
   const navigate = useNavigate();
 
   const handleSignIn = useCallback(async () => {
-
-    // const insertAdminLogin = (userName, password) => {
-    //   const dataBase = getDatabase();
-    //   const adminLoginRef = ref(dataBase, "adminLogin");
-
-    //   // Push new data to the adminLogin node
-    //   const newAdminLoginRef = push(adminLoginRef);
-    //   set(newAdminLoginRef, {
-    //     userName: userName,
-    //     password: password
-    //   }).then(() => {
-    //     console.log("Data inserted successfully!");
-    //   }).catch((error) => {
-    //     console.error("Error inserting data:", error);
-    //   });
-    // };
-
-    // insertAdminLogin(userName, password);
-
-    // return;
-    // <Navigate to="/AddPost"/>;
     const dataBase = getDatabase();
     const adminRef = ref(dataBase, "/adminLogin");
-    onValue(adminRef, async (snapshot) => {
-      // console.log("admin data from database>>>", snapshot.val());
-      let loginAdminData = snapshot.val();
-      loginAdminData = Object.values(loginAdminData)
-      console.log(loginAdminData, loginAdminData[0]?.userName, loginAdminData[0]?.password)
-      loginAdminData.forEach(async element => {
-        if (element && element.userName === email && element.password === pass) {
+
+    try {
+      const snapshot = await get(adminRef);
+
+      if (snapshot.exists()) {
+        const adminData = snapshot.val();
+        const admins = Object.values(adminData);
+
+        const admin = admins.find((element) => {
+          return element && element.userName === email && element.password === pass;
+        });
+
+        if (admin) {
           console.log("Login successful");
           setLoggedIn(dispatch, true);
-          await localStorage.setItem("user", JSON.stringify(element));
+          localStorage.setItem("user", JSON.stringify(admin));
           navigate("/dashboard");
           setTimeout(() => {
-            toast.success(`login successfully`, {
+            toast.success(`Login successfully`, {
               autoClose: 3000,
               position: toast.POSITION.TOP_CENTER,
             });
           }, 1400);
         } else {
           console.log("Invalid credentials");
-          toast.warn(`username or password do not match`, {
+          toast.warn(`Username or password do not match`, {
             autoClose: 3000,
-
             position: toast.POSITION.TOP_CENTER,
           });
         }
-
-      });
-
-
-
-    });
-    return;
-
-    await signInWithEmailAndPassword(auth, email, pass)
-      .then(async (userData) => {
-        await localStorage.setItem("user", JSON.stringify(userData.user));
-        navigate("/dashbord");
-        console.log("userData", userData.user);
-      })
-      .catch((er) => {
-        console.log(er.message.toString());
-      });
+      } else {
+        console.log("Admin data not found");
+      }
+    } catch (error) {
+      console.error("Error fetching admin data:", error);
+    }
   }, [pass, email]);
 
   return (

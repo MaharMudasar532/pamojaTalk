@@ -1,7 +1,10 @@
 import { Alert, Box, Modal } from '@mui/material'
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
 const CustomNoti = React.memo(({ isOpen, onClose, notification, index  , type}) => {
+    // const navigate = useNavigate();
+    // navigate("locate:239")
     const modalTop = 1 + index * 18 + '%';
 
     console.log("vir item >>>>>>>>", notification);

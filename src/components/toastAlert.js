@@ -5,18 +5,19 @@ import "./toast.css";
 
 
 export const showStyledToast = (type, heading, detail, OnClick) => {
-    if (type == 'info') {
+    if (type === 'info') {
         toast.info(
-
-            <div className="custom-toast" onClick={OnClick}>
-
+            <div>
+                <h3>{heading}</h3>
+                <p>{detail}</p>
             </div>,
             {
                 position: toast.POSITION.TOP_CENTER, // Toast position
-                autoClose: 7000, // Auto-close after 5 seconds
+                autoClose: 7000, // Auto-close after 7 seconds
                 hideProgressBar: false, // Show progress bar
                 closeOnClick: true, // Close on click
                 pauseOnHover: true, // Pause auto-close on hover
+                onClick: OnClick, // Callback on click
             }
         );
     }
